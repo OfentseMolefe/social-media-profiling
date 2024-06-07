@@ -3,6 +3,8 @@ include "db_conn.php";
 session_start();
 //Get the Details using a applicant_id from the session
 $applicant_id = $_SESSION['applicant_id'];
+$applicant_id =17;
+$hr_onDuty = $_SESSION['username'];
 //Select from the Application table
 $stmt = $conn->prepare("SELECT *
                         FROM applicant a WHERE a.applicant_id = ?");
@@ -105,8 +107,7 @@ Location:
 Thank you for your interest in our company, and we look forward to meeting you soon.<br><br>
 
 Sincerely,<br>
-Sam Smith<br>
-TUT HR Head";
+$hr_onDuty ( From HR Department) ";
 
 
 
@@ -162,17 +163,45 @@ if (isset($_POST['decline'])) {
             height: 50vh;
 
         }
-
+        .table-wrapper {
+            max-height: 400px;
+            overflow-y: auto;
+        }
         h1 {
             color: SlateBlue;
             font-size: 3rem;
             text-align: center;
             font-style: oblique;
         }
+        
+        .spinner-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
     </style>
 </head>
 
 <body>
+
+    <!-- Add the spinner to the page-->
+    <div id="spinner-overlay" class="spinner-overlay">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
 
     <nav class="navbar navbar-light justify-content-center fs-3 mb-3" style="background-color: #00ff5573;">
         Response to a Candidate
@@ -196,7 +225,7 @@ if (isset($_POST['decline'])) {
                         <p class="mb-2">Cell Number: <?php echo htmlspecialchars($cell_no); ?></p>
                         <div class="d-flex justify-content-center mt-3">
 
-                            <form method="post">
+                            <form id="submitEmail" method="post">
                                 <div class="form-group ">
                                     <textarea class="form-control" id="recruiterComment" placeholder="Leave a comment" name="recruiterComment" rows="6" style="border: 1px solid #ced4da; padding: .375rem .75rem;"></textarea>
                                     <div class="row mb-4">
@@ -243,6 +272,13 @@ if (isset($_POST['decline'])) {
             </div>
         </div>
     </div>
+    <script>
+      document.getElementById('submitEmail').addEventListener('submit', function() {
+            document.getElementById('spinner-overlay').style.display = 'flex';
+        });
+
+    </script>
 </body>
+
 
 </html>
