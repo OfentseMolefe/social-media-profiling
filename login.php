@@ -39,7 +39,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 exit();
             } else {
                 // Redirect to search.php for regular users
-                header("Location: applicants.php");
+                header("Location: search.php");
                 exit();
             }
         }

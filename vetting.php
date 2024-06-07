@@ -37,24 +37,12 @@ $full_name = $merged_first_middle_name . '%20' . $last_name;
 $sql = "SELECT * FROM applicant WHERE first_name = '$merged_first_middle_name' AND last_name = '$last_name'";
 $result = mysqli_query($conn, $sql);
 
+$row = mysqli_fetch_assoc($result);
+$applicantID = $row['applicant_id'];
 
-if (mysqli_num_rows($result) > 0) {
-    $row = mysqli_fetch_assoc($result);
-    $applicantID = $row['applicant_id'];
-    $sql2 = "SELECT * FROM candidate WHERE applicant_id = '$applicantID'";
+// Add applicant ID into the session
+$_SESSION['applicant_id'] = $applicantID;
 
-    //add variables into a session 
-    $_SESSION['applicant_id'] = $applicantID;
-   
-   // $_SESSION['candidate_id'] = $row['candidate_id']; 
-  //  $_SESSION['candidate_id'] = $row['candidate_id']; 
-    $result2 = mysqli_query($conn, $sql2);
-
-    if (mysqli_num_rows($result2) > 0) {
-         
-        echo "<script>alert('Candidate already exist in the database.Please view candidate page in menu '); window.location='search.php';</script>";
-    }
-}
 //push the name to the session
 $_SESSION['merged_first_middle_name'] = $merged_first_middle_name;
 $_SESSION['merged_last_name'] = $last_name;
@@ -76,7 +64,7 @@ if (isset($_POST['twitter'])) {
     $checkedNetworks[] = 'twitter';
 }
 
-$_SESSION['profiles']= $checkedNetworks;
+$_SESSION['profiles'] = $checkedNetworks;
 // Construct the query string for social networks
 $socialNetworksQuery = implode('%2C', $checkedNetworks);
 
@@ -86,7 +74,7 @@ $rapidApiUrl = "https://social-links-search.p.rapidapi.com/search-social-links?q
 // Set up RapidAPI request headers
 $rapidApiHeaders = [
     "X-RapidAPI-Host: social-links-search.p.rapidapi.com",
-    "X-RapidAPI-Key: your here Key"
+    "X-RapidAPI-Key: 4146d6b452msh566b6193b7e3c35p17acb0jsnee7215bd8183"
 ];
 
 // Initialize cURL session
@@ -125,13 +113,9 @@ if ($data['status'] === "OK") {
     exit(); // Terminate script if there are no profiles found
 }
 
-
-
 ?>
 
-
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
@@ -139,7 +123,7 @@ if ($data['status'] === "OK") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Social Media Profiles results</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
     <style>
         .social-icon {
             width: 60px;
@@ -156,25 +140,39 @@ if ($data['status'] === "OK") {
             border: 1px solid #dee2e6;
             padding: 8px;
         }
+
+        .spinner {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+        }
     </style>
 </head>
 
 <body>
+    <div id="spinner-overlay" class="spinner-overlay">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
     <nav class="navbar navbar-light justify-content-center fs-3 mb-3" style="background-color: #00ff5573;">
         <div class="container-fluid">
-            <span class="navbar-brand mb-0 ">Social Media Profiles</span>
+            <span class="navbar-brand mb-0 fs-3">Vetting Page</span>
             <div>
-                <span class="navbar-text me-2">
+                <span class="navbar-brand mb-0 ">
                     <?php echo "Search Key: " . $searchKey . ""; ?>
                 </span>
-                <span class="navbar-text">Logged In:
+                <span class="navbar-brand mb-0 ">
                     <?php
-
                     if (isset($_SESSION['username'])) {
                         // Display an active dot and the username
-                        echo '<span><i class="fas fa-circle text-success me-1"></i>' . $_SESSION['username'] . '</span>';
+                        echo "Logged In:" . $_SESSION['username'];
                     }
-                    ?></span>
+                    ?>
+                </span>
             </div>
         </div>
     </nav>
@@ -182,7 +180,7 @@ if ($data['status'] === "OK") {
     <?php
     if ($data['status'] === "OK") {
     ?> <div class="mb-4  container">
-            <form id="captureForm" action="capture.php" method="POST">
+            <form id="captureForm" action="view_candidate.php" method="POST">
                 <div class="table-responsive">
                     <table class="table">
                         <thead>
@@ -217,13 +215,13 @@ if ($data['status'] === "OK") {
                     <?php
                     if (mysqli_num_rows($result) > 0) {
                         // Show capture button only if applicant exists
-                        echo '<button type="submit" class="btn btn-primary">Capture</button>';
+                        echo '<button type="submit" class="btn btn-primary">Complete vetting </button>';
                     }
                     ?>
                 </div>
                 <div class="mb-3 d-flex justify-content-between">
                     <div>
-                        <a href="search.php" class="btn btn-light me-2">Go to Search page</a>
+                        <a href="search.php" class="btn btn-light me-2">Go to Back</a>
                     </div>
                     <div>
                         <a href="index.php" class="btn btn-danger"><i class="fas fa-sign-out-alt"></i> Logout</a>
@@ -238,15 +236,15 @@ if ($data['status'] === "OK") {
         echo "No social media profiles found for the given query.";
     }
     ?>
-
-
-
     <script>
         function removeRow(btn) {
             var row = btn.parentNode.parentNode;
             row.parentNode.removeChild(row);
         }
+
+        document.getElementById('captureForm').addEventListener('submit', function() {
+            document.getElementById('spinner-overlay').style.display = 'flex';
+        });
     </script>
 </body>
-
 </html>
