@@ -12,7 +12,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = $_POST['password'];
     $confirmPassword = $_POST['password1'];
    
-    // get the recruter is
+    // get the recruiter ID
     $recruiterID = isset($_SESSION['recruiterID']) ? $_SESSION['recruiterID'] : '';
 
     if ($password !== $confirmPassword) {
@@ -58,6 +58,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             border-radius: 5px;
             padding: 20px;
         }
+
+        .spinner-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
     </style>
 </head>
 
@@ -84,7 +102,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <p class="text-muted">Complete the form below to enter a new Password (NOT 12345)</p>
             </div>
             <div class="form-container align-items-center">
-            <form method="post">
+            <form id="passwordForm" method="post">
                 <div class="mb-4">
                     <label class="form-label">Username:</label>
                     <input type="text" class="form-control" name="username" required="" style="width: 30ch;" value="<?php echo isset($_SESSION['username']) ? $_SESSION['username'] : ''; ?>" readonly>
@@ -105,8 +123,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
         </div>
     </div>
+
+    <!-- Spinner overlay -->
+    <div id="spinner-overlay" class="spinner-overlay">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
     <!-- Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+
+    <!-- JavaScript to handle the spinner -->
+    <script>
+        document.getElementById('passwordForm').addEventListener('submit', function() {
+            document.getElementById('spinner-overlay').style.display = 'flex';
+        });
+    </script>
 
 </body>
 
