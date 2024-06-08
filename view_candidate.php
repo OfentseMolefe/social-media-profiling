@@ -20,26 +20,6 @@ $email = $row["email"];
 $cell_no = $row["phone"];
 $application_position = $row["application_position"];
 
-// Prepared statement to retrieve links from the socialMediaProfile for that candidate_ID
-/*$stmt = $conn->prepare("SELECT i.profile_url AS instagram_url, t.profile_url AS twitter_url, l.profile_url AS linkedin_url, f.profile_url AS facebook_url
-                        FROM candidate c
-                        INNER JOIN socialmediaprofile s ON c.candidate_id = s.candidate_id
-                        LEFT JOIN twitter_profile t ON s.socialMediaID = t.socialMediaID
-                        LEFT JOIN linkedin_profile l ON s.socialMediaID = l.socialMediaID
-                        LEFT JOIN facebook_profile f ON s.socialMediaID = f.socialMediaID
-                        LEFT JOIN instagram_profile i ON s.socialMediaID = i.socialMediaID
-                        WHERE c.candidate_id = ?");
-$stmt->bind_param("i", $candidate_ID);
-$stmt->execute();
-$result = $stmt->get_result();
-
-// Fetch the social media profile URLs
-$row = $result->fetch_assoc();
-$instagram_url = $row['instagram_url'];
-$twitter_url = $row['twitter_url'];
-$linkedin_url = $row['linkedin_url'];
-$facebook_url = $row['facebook_url'];
-*/
 require 'vendor/autoload.php';
 
 use Symfony\Component\Mailer\Transport;
@@ -109,8 +89,6 @@ Thank you for your interest in our company, and we look forward to meeting you s
 Sincerely,<br>
 $hr_onDuty ( From HR Department) ";
 
-
-
     echo send_email($email, $subject, $body);
 
     //Store the comment  and update details into a applicant database
@@ -152,7 +130,7 @@ if (isset($_POST['decline'])) {
             background-position: center;
             background-repeat: no-repeat;
             margin: 0;
-            height: 100vh;
+            height: 90vh;
             justify-content: center;
         }
 
@@ -160,20 +138,21 @@ if (isset($_POST['decline'])) {
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 50vh;
-
+            height: 20vh;
         }
+
         .table-wrapper {
             max-height: 400px;
             overflow-y: auto;
         }
+
         h1 {
             color: SlateBlue;
             font-size: 3rem;
             text-align: center;
             font-style: oblique;
         }
-        
+
         .spinner-overlay {
             position: fixed;
             top: 0;
@@ -196,7 +175,7 @@ if (isset($_POST['decline'])) {
 
 <body>
 
-    <!-- Add the spinner to the page-->
+    <!-- Add the spinner to the page -->
     <div id="spinner-overlay" class="spinner-overlay">
         <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Loading...</span>
@@ -219,15 +198,15 @@ if (isset($_POST['decline'])) {
             <div class="col-lg-4">
                 <div class="card mb-3">
                     <div class="card-body text-center">
-                        <!--<img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp" alt="avatar" class="rounded-circle img-fluid" style="width: 150px;">-->
+                       <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp" alt="avatar" class="rounded-circle img-fluid" style="width: 150px;">
                         <h2 class="mt-3"><?php echo htmlspecialchars($first_name); ?> <?php echo htmlspecialchars($last_name); ?></h2>
                         <p class="mb-2">Email: <?php echo htmlspecialchars($email); ?></p>
                         <p class="mb-2">Cell Number: <?php echo htmlspecialchars($cell_no); ?></p>
                         <div class="d-flex justify-content-center mt-3">
 
                             <form id="submitEmail" method="post">
-                                <div class="form-group ">
-                                    <textarea class="form-control" id="recruiterComment" placeholder="Leave a comment" name="recruiterComment" rows="6" style="border: 1px solid #ced4da; padding: .375rem .75rem;"></textarea>
+                                <div class="form-group">
+                                    <textarea class="form-control mb-3" id="recruiterComment" placeholder="Leave a comment" name="recruiterComment" rows="3" style="border: 1px solid #ced4da; padding: .375rem .75rem;"></textarea>
                                     <div class="row mb-4">
                                         <label class="col-12">
                                             <u><strong>Interview Details</strong></u>
@@ -241,11 +220,9 @@ if (isset($_POST['decline'])) {
                                             <input type="time" id="interview_time" name="interview_time" class="form-control">
                                         </div>
                                     </div>
-                                    <button type="submit" class="btn btn-primary me-2" name="accept">ACCEPT</button>
+                                    <button type="submit" class="btn btn-primary me-5" name="accept">ACCEPT</button>
                                     <button type="submit" name="decline" class="btn btn-outline-primary">DECLINE</button>
-
                                 </div>
-
                             </form>
 
                         </div>
@@ -264,7 +241,6 @@ if (isset($_POST['decline'])) {
                     </div>
                 </div>
 
-
                 <div class="d-flex justify-content-between">
                     <a href="candidate_table.php" class="btn btn-primary">Back</a>
                     <a href="index.php" class="btn btn-danger">Logout</a>
@@ -273,12 +249,10 @@ if (isset($_POST['decline'])) {
         </div>
     </div>
     <script>
-      document.getElementById('submitEmail').addEventListener('submit', function() {
+        document.getElementById('submitEmail').addEventListener('submit', function () {
             document.getElementById('spinner-overlay').style.display = 'flex';
         });
-
     </script>
 </body>
-
 
 </html>
