@@ -184,8 +184,26 @@ $_SESSION['full_name'] = $full_name;
             btn.classList.remove('btn-vetting-default');
             btn.classList.add('btn-vetting-clicked');
         }
+         //Add the functionality  for spinner be visible
+        document.getElementById('searchForm').addEventListener('submit', function(event) {
+            var searchKey = document.getElementById('searchKey').value.trim();
+            var linkedin = document.getElementById('linkedin').checked;
+            var facebook = document.getElementById('facebook').checked;
+            var instagram = document.getElementById('instagram').checked;
+            var twitter = document.getElementById('twitter').checked;
 
-        document.getElementById('searchForm').addEventListener('submit', function() {
+            if (!searchKey) {
+                alert('Please enter a full name to search.');
+                event.preventDefault();
+                return;
+            }
+
+            if (!linkedin && !facebook && !instagram && !twitter) {
+                alert('Please select at least one social media platform to search.');
+                event.preventDefault();
+                return;
+            }
+
             document.getElementById('spinner-overlay').style.display = 'flex';
         });
     </script>

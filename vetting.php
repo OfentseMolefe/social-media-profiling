@@ -4,6 +4,10 @@ session_start();
 include "db_conn.php";
 
 $searchKey = isset($_POST['searchKey']) ? $_POST['searchKey'] : '';
+if (empty($searchKey)) {
+    die("Search key is required.");
+}
+
 // Split the full name into an array of parts using a space (' ') as the delimiter
 $names = explode(' ', $searchKey);
 // Determine the number of parts in the name
@@ -33,17 +37,25 @@ $merged_first_middle_name = trim($first_name . ' ' . $middle_name);
 // Concatenate first name and last name with a space between them
 $full_name = $merged_first_middle_name . '%20' . $last_name;
 
-// check if the person exist
+// Check if the person exists
 $sql = "SELECT * FROM applicant WHERE first_name = '$merged_first_middle_name' AND last_name = '$last_name'";
 $result = mysqli_query($conn, $sql);
 
+if (!$result) {
+    die("Database query failed: " . mysqli_error($conn));
+}
+
 $row = mysqli_fetch_assoc($result);
-$applicantID = $row['applicant_id'];
+$applicantID = $row['applicant_id'] ?? null;
+
+if (!$applicantID) {
+    die("Applicant not found.");
+}
 
 // Add applicant ID into the session
 $_SESSION['applicant_id'] = $applicantID;
 
-//push the name to the session
+// Push the name to the session
 $_SESSION['merged_first_middle_name'] = $merged_first_middle_name;
 $_SESSION['merged_last_name'] = $last_name;
 
@@ -62,6 +74,10 @@ if (isset($_POST['instagram'])) {
 }
 if (isset($_POST['twitter'])) {
     $checkedNetworks[] = 'twitter';
+}
+
+if (empty($checkedNetworks)) {
+    die("No social media platforms selected.");
 }
 
 $_SESSION['profiles'] = $checkedNetworks;
@@ -95,8 +111,7 @@ $response = curl_exec($curl);
 
 // Check for errors
 if ($response === false) {
-    echo "cURL Error: " . curl_error($curl);
-    exit(); // Terminate script if there's an error
+    die("cURL Error: " . curl_error($curl));
 }
 
 // Close cURL session
@@ -106,11 +121,8 @@ curl_close($curl);
 $data = json_decode($response, true);
 
 // Check if the response status is OK
-if ($data['status'] === "OK") {
-    // Proceed with displaying the data
-} else {
-    echo "No social media profiles found for the given query.";
-    exit(); // Terminate script if there are no profiles found
+if (!isset($data['status']) || $data['status'] !== "OK") {
+    die("No social media profiles found for the given query.");
 }
 
 ?>
@@ -141,12 +153,22 @@ if ($data['status'] === "OK") {
             padding: 8px;
         }
 
-        .spinner {
+        .spinner-overlay {
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
             display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
         }
     </style>
 </head>
@@ -162,14 +184,14 @@ if ($data['status'] === "OK") {
         <div class="container-fluid">
             <span class="navbar-brand mb-0 fs-3">Vetting Page</span>
             <div>
-                <span class="navbar-brand mb-0 ">
-                    <?php echo "Search Key: " . $searchKey . ""; ?>
+                <span class="navbar-brand mb-0">
+                    <?php echo "Search Key: " . htmlspecialchars($searchKey); ?>
                 </span>
-                <span class="navbar-brand mb-0 ">
+                <span class="navbar-brand mb-0">
                     <?php
                     if (isset($_SESSION['username'])) {
                         // Display an active dot and the username
-                        echo "Logged In:" . $_SESSION['username'];
+                        echo "Logged In: " . htmlspecialchars($_SESSION['username']);
                     }
                     ?>
                 </span>
@@ -177,65 +199,60 @@ if ($data['status'] === "OK") {
         </div>
     </nav>
 
-    <?php
-    if ($data['status'] === "OK") {
-    ?> <div class="mb-4  container">
-            <form id="captureForm" action="view_candidate.php" method="POST">
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Media Icon</th>
-                                <th>Username</th>
-                                <th>URL</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($data['data'] as $platform => $profiles) {
-                                if (count($profiles) > 0) {
-                                    $profile = $profiles[0]; // Selecting the first profile
-                                    $username = substr($profile, strrpos($profile, '/') + 1); // Assuming username comes after the last '/'
-                            ?>
-                                    <tr>
-                                        <td><img src="assets/icons/<?php echo strtolower($platform) ?>.png" alt="<?php echo ucfirst($platform) ?>" class="social-icon" style="max-width: 90px;"></td>
-                                        <td><?php echo $username; ?></td>
-                                        <td><a href="<?php echo $profile ?>" target="_blank"><?php echo $profile ?></a></td>
-                                        <td><input type="hidden" name="social_profiles[]" value="<?php echo $platform . '|' . $username . '|' . $profile; ?>"><button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">Remove</button></td>
-                                    </tr>
-                            <?php
-                                } else {
-                                    echo "<tr><td colspan='4'>No profiles found for $platform.</td></tr>";
-                                }
-                            } ?>
-                        </tbody>
-                    </table>
+    <div class="mb-4 container">
+        <form id="captureForm" action="view_candidate.php" method="POST">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Media Icon</th>
+                            <th>Username</th>
+                            <th>URL</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($data['data'] as $platform => $profiles) {
+                            if (count($profiles) > 0) {
+                                $profile = $profiles[0]; // Selecting the first profile
+                                $username = substr($profile, strrpos($profile, '/') + 1); // Assuming username comes after the last '/'
+                                
+                                // Set correct icon for Twitter/X
+                                $platform_icon = strtolower($platform) === 'twitter' ? 'x' : strtolower($platform);
+                        ?>
+                                <tr>
+                                    <td><img src="assets/icons/<?php echo $platform_icon ?>.png" alt="<?php echo ucfirst($platform) ?>" class="social-icon" style="max-width: 90px;"></td>
+                                    <td><?php echo htmlspecialchars($username); ?></td>
+                                    <td><a href="<?php echo htmlspecialchars($profile); ?>" target="_blank"><?php echo htmlspecialchars($profile); ?></a></td>
+                                    <td><input type="hidden" name="social_profiles[]" value="<?php echo htmlspecialchars($platform . '|' . $username . '|' . $profile); ?>"><button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">Remove</button></td>
+                                </tr>
+                        <?php
+                            } else {
+                                echo "<tr><td colspan='4'>No profiles found for " . htmlspecialchars($platform) . ".</td></tr>";
+                            }
+                        } ?>
+                    </tbody>
+                </table>
+            </div>
+            <div class="text-center mt-4">
+                <?php
+                if (mysqli_num_rows($result) > 0) {
+                    // Show capture button only if applicant exists
+                    echo '<button type="submit" class="btn btn-primary">Complete vetting</button>';
+                }
+                ?>
+            </div>
+            <div class="mb-3 d-flex justify-content-between">
+                <div>
+                    <a href="search.php" class="btn btn-light me-2">Go Back</a>
                 </div>
-                <div class="text-center mt-4">
-                    <?php
-                    if (mysqli_num_rows($result) > 0) {
-                        // Show capture button only if applicant exists
-                        echo '<button type="submit" class="btn btn-primary">Complete vetting </button>';
-                    }
-                    ?>
+                <div>
+                    <a href="index.php" class="btn btn-danger"><i class="fas fa-sign-out-alt"></i> Logout</a>
                 </div>
-                <div class="mb-3 d-flex justify-content-between">
-                    <div>
-                        <a href="search.php" class="btn btn-light me-2">Go to Back</a>
-                    </div>
-                    <div>
-                        <a href="index.php" class="btn btn-danger"><i class="fas fa-sign-out-alt"></i> Logout</a>
-                    </div>
-                </div>
-        </div>
+            </div>
         </form>
+    </div>
 
-        </div>
-    <?php
-    } else {
-        echo "No social media profiles found for the given query.";
-    }
-    ?>
     <script>
         function removeRow(btn) {
             var row = btn.parentNode.parentNode;
