@@ -35,13 +35,6 @@
         }
     </style>
     <script>
-        // Spinner function
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('captureForm').addEventListener('submit', function() {
-                document.getElementById('spinner-overlay').style.display = 'flex';
-            });
-        });
-
         function validateForm() {
             var address = document.forms["registrationForm"]["address"].value;
             var motivation = document.forms["registrationForm"]["motivation"].value;
@@ -99,6 +92,18 @@
 
             return true;
         }
+
+        function handleSubmit(event) {
+            if (validateForm()) {
+                document.getElementById('spinner-overlay').style.display = 'flex';
+            } else {
+                event.preventDefault();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('captureForm').addEventListener('submit', handleSubmit);
+        });
     </script>
 </head>
 
@@ -127,7 +132,7 @@
                 <div class="tab-content" id="myTabContent">
                     <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
                         <h3 class="register-heading">Application form</h3>
-                        <form id="captureForm" action="process_form.php" method="POST" name="registrationForm" onsubmit="return validateForm()">
+                        <form id="captureForm" action="process_form.php" method="POST" name="registrationForm">
                             <div class="row register-form">
                                 <div class="col-md-6">
                                     <div class="form-group">
