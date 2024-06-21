@@ -26,7 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 
     // Insert data into the database using prepared statements
-    $insert_query = "INSERT INTO applicant (first_name, last_name, email, address, motivation, phone, application_position, identity_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    $insert_query = "INSERT INTO person (first_name, last_name, email, address, motivation, phone, application_position, identity_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($insert_query);
     $stmt->bind_param("ssssssss", $first_name, $last_name, $email, $address, $motivation, $phone, $application_position, $identity_number);
 

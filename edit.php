@@ -1,7 +1,6 @@
 <?php
 include "db_conn.php";
 $recruiterID = $_GET["recruiter_ID"];
-
 if (isset($_POST["submit"])) {
   $first_name = $_POST['first_name'];
   $last_name = $_POST['last_name'];
@@ -9,16 +8,37 @@ if (isset($_POST["submit"])) {
   $password = $_POST['password'];
   $occupation =  $_POST['occupation'];
 
-  $sql = "UPDATE `recruiter` SET `first_name`='$first_name',`last_name`='$last_name',`email`='$email',`password`='$password',`occupation`='$occupation' WHERE recruiter_ID = $recruiterID";
-  $result = mysqli_query($conn, $sql);
+  // Begin transaction
+  mysqli_begin_transaction($conn);
 
-  if ($result) {
+  try {
+    // Update person table
+    $sqlPerson = "UPDATE `person` p
+                  JOIN `recruiter` r ON p.person_ID = r.person_ID
+                  SET p.first_name = ?, p.last_name = ?, p.email = ?, p.occupation = ?
+                  WHERE r.recruiter_ID = ?";
+    $stmtPerson = $conn->prepare($sqlPerson);
+    $stmtPerson->bind_param("sssii", $first_name, $last_name, $email, $occupation, $recruiterID);
+    $stmtPerson->execute();
+
+    // Update recruiter table
+    if (!empty($password)) {
+      $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+      $sqlRecruiter = "UPDATE `recruiter` SET `password` = ? WHERE `recruiter_ID` = ?";
+      $stmtRecruiter = $conn->prepare($sqlRecruiter);
+      $stmtRecruiter->bind_param("si", $hashed_password, $recruiterID);
+      $stmtRecruiter->execute();
+    }
+
+    // Commit transaction
+    mysqli_commit($conn);
     header("Location: admin.php?msg=Data updated successfully");
-  } else {
-    echo "Failed: " . mysqli_error($conn);
+  } catch (Exception $e) {
+    // Rollback transaction on error
+    mysqli_rollback($conn);
+    echo "Failed: " . $e->getMessage();
   }
 }
-
 ?>
 
 
@@ -53,10 +73,14 @@ if (isset($_POST["submit"])) {
     </div>
 
     <?php
-    $sql = "SELECT * FROM `recruiter` WHERE recruiter_ID = $recruiterID LIMIT 1";
+    $sql =" SELECT r.username, r.password, p.first_name, p.last_name, p.email, p.occupation 
+             FROM recruiter r
+             JOIN person p ON r.person_ID = p.person_ID
+             WHERE r.recruiter_ID = 1025";
+
     $result = mysqli_query($conn, $sql);
     $row = mysqli_fetch_assoc($result);
-    ?>
+    ?> 
 
     <div class="container d-flex justify-content-center">
       <form action="" method="post" style="width:50vw; min-width:300px;">

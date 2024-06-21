@@ -10,7 +10,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = $_POST['password'];
 
     // Fetch user data from the database
-    $sql = "SELECT * FROM recruiter WHERE email = '$username' AND password = '$password'";
+    $sql = "SELECT * FROM recruiter WHERE username = '$username' AND password = '$password'";
     $result = $conn->query($sql);
     if ($result->num_rows == 1) {
         // Fetch the user data from the result set
