@@ -7,12 +7,14 @@ if (isset($_POST["submit"])) {
    $email = mysqli_real_escape_string($conn, $_POST['email']);
    $password = $_POST['password']; // Hash the password
    $Occupation = mysqli_real_escape_string($conn, $_POST['occupation']);
+   
+   $sqlp = "INSERT INTO `person`(`person_ID`, `first_name`, `last_name`, `email`, `occupation`) VALUES (NULL,'$first_name','$last_name','$email','$Occupation')";
+   $sqlr = "INSERT INTO `recruiter`(`recruiter_ID`, `username`, `password`) VALUES (NULL,'$email','$password')";
 
-   $sql = "INSERT INTO `recruiter`(`recruiter_ID`, `first_name`, `last_name`, `email`, `password`, `occupation`) VALUES (NULL,'$first_name','$last_name','$email','$password','$Occupation')";
+   $result = mysqli_query($conn, $sqlp);
+   $result1= mysqli_query($conn, $sqlr);
 
-   $result = mysqli_query($conn, $sql);
-
-   if ($result) {
+   if ($result && $result1) {
       header("Location: admin.php?msg=New record created successfully");
    } else {
       echo "Failed: " . mysqli_error($conn);
