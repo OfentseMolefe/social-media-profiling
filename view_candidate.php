@@ -7,7 +7,7 @@ $candidate_ID =17;
 $hr_onDuty = $_SESSION['username'];
 //Select from the Application table
 $stmt = $conn->prepare("SELECT *
-                        FROM applicant a WHERE a.candidate_ID = ?");
+                        FROM candidate a WHERE a.candidate_ID = ?");
 $stmt->bind_param("i", $candidate_ID);
 $stmt->execute();
 $result = $stmt->get_result();

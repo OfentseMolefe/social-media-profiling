@@ -8,8 +8,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $address = htmlspecialchars($_POST["address"]);
     $motivation = htmlspecialchars($_POST["motivation"]);
     $phone = htmlspecialchars($_POST["phone"]);
-    $application_position = htmlspecialchars($_POST["application_position"]);
+    $occupation= htmlspecialchars($_POST["application_position"]);
     $identity_number = htmlspecialchars($_POST["identity_number"]);
+    
 
 
     // Check if identity number is unique
@@ -26,9 +27,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 
     // Insert data into the database using prepared statements
-    $insert_query = "INSERT INTO person (first_name, last_name, person_ID, occcupation, email) VALUES (?, ?, ?, ?, ?)";
+    $insert_query = "INSERT INTO person (first_name, last_name, person_ID, occupation, email) VALUES (?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($insert_query);
-    $stmt->bind_param("ssssssss", $first_name, $last_name, $email, $address, $motivation, $phone, $application_position, $identity_number);
+    $stmt->bind_param("sssss", $first_name, $last_name, $person_ID, $occupation, $email);
 
     if ($stmt->execute()) {
         // Redirect to thank you page upon successful submission
