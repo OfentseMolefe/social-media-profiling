@@ -12,9 +12,26 @@
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <style>
-        /* CSS for highlighting error input fields */
+        .spinner-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+
         .error-input {
-            border: 1px solid red !important;
+            border: 2px solid red;
         }
     </style>
     <script>
@@ -68,23 +85,40 @@
             // Check if the day part is valid for the given month
             var lastDaysOfMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
             if (day < 1 || day > lastDaysOfMonth[month - 1]) {
-                alert("Please enter a valid identy number");
+                alert("Please enter a valid identity number");
                 document.forms["registrationForm"]["identity_number"].classList.add("error-input");
                 return false;
             }
 
             return true;
         }
+
+        function handleSubmit(event) {
+            if (validateForm()) {
+                document.getElementById('spinner-overlay').style.display = 'flex';
+            } else {
+                event.preventDefault();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('captureForm').addEventListener('submit', handleSubmit);
+        });
     </script>
 </head>
 
 <body>
+    <div id="spinner-overlay" class="spinner-overlay">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
     <div class="container register">
         <div class="row">
             <div class="col-md-3 register-left">
                 <img src="https://image.ibb.co/n7oTvU/logo_white.png" alt="" />
                 <h3>Welcome</h3>
-                <p>You are more than welcome to log in </p>
+                <p>You are more than welcome to log in</p>
                 <form action="index2.php">
                     <input type="submit" value="Login" class="btn btn-primary btn-lg" /><br />
                 </form>
@@ -98,8 +132,7 @@
                 <div class="tab-content" id="myTabContent">
                     <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
                         <h3 class="register-heading">Application form</h3>
-
-                        <form action="process_form.php" method="POST" name="registrationForm" onsubmit="return validateForm()">
+                        <form id="captureForm" action="process_form.php" method="POST" name="registrationForm">
                             <div class="row register-form">
                                 <div class="col-md-6">
                                     <div class="form-group">
@@ -131,7 +164,7 @@
                                         </select>
                                     </div>
                                     <div class="form-group">
-                                        <input type="text" class="form-control" name="identity_number" placeholder="Enter Your Identity number*" required />
+                                        <input type="text" class="form-control" name="identity_number" placeholder="Enter Your Identity number *" required />
                                     </div>
                                     <input type="submit" class="btn btn-primary btn-lg" value="APPLY" />
                                 </div>
@@ -145,4 +178,3 @@
 </body>
 
 </html>
-

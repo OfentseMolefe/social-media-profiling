@@ -67,15 +67,17 @@ session_start();
       </thead>
       <tbody>
         <?php
-        $sql = "SELECT * FROM `recruiter` 
-               WHERE NOT first_name = 'system'";
+        // SQL query to join recruiter and person tables
+        $sql = "SELECT r.recruiter_ID, p.first_name, p.last_name, p.email, r.password, p.occupation 
+        FROM recruiter r
+        JOIN person p ON r.person_ID = p.person_ID
+        WHERE p.first_name != 'system'";
         $result = mysqli_query($conn, $sql);
-
-        $isLoggedIn = $_SESSION['recruiterID'];
+        $isLoggedIn = $_SESSION['recruiter_ID'];
 
         while ($row = mysqli_fetch_assoc($result)) {
           // check the current user
-          $isCurrentUser = ($row['recruiter_ID'] == $isLoggedIn );
+          $isCurrentUser = ($row['recruiter_ID'] == $isLoggedIn);
         ?>
           <tr>
             <td><?php echo $row["recruiter_ID"] ?></td>
@@ -86,9 +88,9 @@ session_start();
             <td><?php echo $row["occupation"] ?></td>
 
             <td>
-             <?php if($isCurrentUser) : ?>
-              <a href="edit.php?recruiter_ID=<?php echo $row["recruiter_ID"] ?>" class="link-dark"><i class="fa-solid fa-pen-to-square fs-5 me-3"></i></a>
-             <?php endif; ?>
+              <?php if ($isCurrentUser) : ?>
+                <a href="edit.php?recruiter_ID=<?php echo $row["recruiter_ID"] ?>" class="link-dark"><i class="fa-solid fa-pen-to-square fs-5 me-3"></i></a>
+              <?php endif; ?>
               <a href="delete.php?recruiter_ID=<?php echo $row["recruiter_ID"] ?>" class="link-dark"><i class="fa-solid fa-trash fs-5"></i></a>
             </td>
           </tr>
@@ -107,4 +109,3 @@ session_start();
 </body>
 
 </html>
-

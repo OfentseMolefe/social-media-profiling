@@ -2,23 +2,61 @@
 include "db_conn.php";
 
 if (isset($_POST["submit"])) {
+   // Check if connection is successful
+   if (!$conn) {
+      die("Connection failed: " . mysqli_connect_error());
+   }
+
+   // Get and sanitize input data
    $first_name = mysqli_real_escape_string($conn, $_POST['first_name']);
    $last_name = mysqli_real_escape_string($conn, $_POST['last_name']);
    $email = mysqli_real_escape_string($conn, $_POST['email']);
-   $password = $_POST['password']; // Hash the password
-   $Occupation = mysqli_real_escape_string($conn, $_POST['occupation']);
+   $password = password_hash($_POST['password'], PASSWORD_DEFAULT); // Hash the password
+   $occupation = mysqli_real_escape_string($conn, $_POST['occupation']);
 
-   $sql = "INSERT INTO `recruiter`(`recruiter_ID`, `first_name`, `last_name`, `email`, `password`, `occupation`) VALUES (NULL,'$first_name','$last_name','$email','$password','$Occupation')";
+   // Begin transaction
+   mysqli_begin_transaction($conn);
 
-   $result = mysqli_query($conn, $sql);
-
-   if ($result) {
+   try {
+      // Prepare SQL statement for person table
+      $stmtp = $conn->prepare("INSERT INTO `person`(`person_ID`, `first_name`, `last_name`, `email`, `occupation`) VALUES (NULL, ?, ?, ?, ?)");
+      
+      // Bind parameters for person table
+      $stmtp->bind_param("ssss", $first_name, $last_name, $email, $occupation);
+      
+      // Execute statement for person table
+      $stmtp->execute();
+      
+      // Get the auto-generated person_ID
+      $person_id = mysqli_insert_id($conn);
+      
+      // Prepare SQL statement for recruiter table
+      $stmtr = $conn->prepare("INSERT INTO `recruiter`(`recruiter_ID`, `username`, `password`, `person_ID`) VALUES (NULL, ?, ?, ?)");
+      
+      // Bind parameters for recruiter table
+      $stmtr->bind_param("ssi", $email, $password, $person_id);
+      
+      // Execute statement for recruiter table
+      $stmtr->execute();
+      
+      // Commit transaction
+      mysqli_commit($conn);
+      
       header("Location: admin.php?msg=New record created successfully");
-   } else {
-      echo "Failed: " . mysqli_error($conn);
+   } catch (Exception $e) {
+      // Rollback transaction on error
+      mysqli_rollback($conn);
+      echo "Failed: " . $e->getMessage();
    }
+
+   // Close statements and connection
+   $stmtp->close();
+   $stmtr->close();
+   $conn->close();
 }
 ?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 

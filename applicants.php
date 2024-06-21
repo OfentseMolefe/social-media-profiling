@@ -1,7 +1,6 @@
 <?php
 include "db_conn.php";
 session_start();
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -19,33 +18,29 @@ session_start();
 </head>
 
 <body>
- 
-        <nav class="navbar navbar-light justify-content-center fs-3 mb-5" style="background-color: #00ff5573;">
-            <div class="col text-center">
-                <span>Applicant Table</span>
+
+    <nav class="navbar navbar-light justify-content-center fs-3 mb-5" style="background-color: #00ff5573;">
+        <div class="col text-center">
+            <span>Applicant Table</span>
+        </div>
+        <div class="menu-bar ms-5">
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle menu-btn" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                    Menu
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <li><a class="dropdown-item" href="applicants.php"><i class="fas fa-users"></i> View Applicants</a></li>
+                    <li><a class="dropdown-item" href="candidate_table.php"><i class="fas fa-user"></i> Prospective Candidate(s)</a></li>
+                    <li><a class="dropdown-item" href="index.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                </ul>
             </div>
-            <div class="menu-bar ms-5">
-                <div class="dropdown">
-                    <button class="btn btn-secondary dropdown-toggle menu-btn" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                        Menu
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <li><a class="dropdown-item" href="applicants.php"><i class="fas fa-users"></i> View Applicants</a></li>
-                        <li><a class="dropdown-item" href="candidate_table.php"><i class="fas fa-user"></i> Prospective Candidate(s)</a></li>
-                        <li><a class="dropdown-item" href="index.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    
+        </div>
+    </nav>
 
     <div class="container">
         <div class="mb-4 d-flex align-items-right">
-
             <?php
-
             if (isset($_SESSION['username'])) {
-                // Display an active dot and the username
                 echo '<span><i class="fas fa-circle text-success me-1"></i>' . $_SESSION['username'] . '</span>';
             }
             ?>
@@ -63,14 +58,23 @@ session_start();
         }
         ?>
 
-        <table class="table table-hover text-center">
+        <!-- Search Form -->
+        <form action="search.php" method="GET" class="mb-4">
+            <div class="input-group">
+                <input type="text" name="searchKey" class="form-control" placeholder="Search by name..." aria-label="Search">
+                <button class="btn btn-primary" type="submit">Search</button>
+            </div>
+        </form>
+
+        <table class="table table-hover text-center" id="applicantTable">
             <thead class="table-dark">
                 <tr>
-                    <th scope="col">Applicant ID</th>
-                    <th scope="col">First Name</th>
-                    <th scope="col">Last Name</th>
-                    <th scope="col">Email</th>
-                    <th scope="col">Phone</th>
+                    <th scope="col" data-column="applicant_id">Applicant ID</th>
+                    <th scope="col" data-column="first_name">First Name</th>
+                    <th scope="col" data-column="last_name">Last Name</th>
+                    <th scope="col" data-column="email">Email</th>
+                    <th scope="col" data-column="phone">Phone</th>
+                    <th scope="col" data-column="application_position">Position</th>
                     <th scope="col">Action</th>
                 </tr>
             </thead>
@@ -86,9 +90,11 @@ session_start();
                         <td><?php echo $row["last_name"] ?></td>
                         <td><?php echo $row["email"] ?></td>
                         <td><?php echo $row["phone"] ?></td>
+                        <td><?php echo $row["application_position"] ?></td>
                         <td>
-                            <a href="view_applicant.php?identity_number=<?php echo $row["identity_number"] ?>" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> View</a>
+                            <a href="view_applicant.php?identity_number=<?php echo $row["identity_number"] ?>" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> Vetting</a>
                             <a href="search.php?first_name=<?php echo $row["first_name"]; ?>&last_name=<?php echo $row["last_name"]; ?>&applicant_id=<?php echo $row["applicant_id"]; ?>" class="btn btn-info btn-sm"><i class="fas fa-search"></i> Search</a>
+                            <a href="view_applicant.php?identity_number=<?php echo $row["identity_number"] ?>" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> View</a>
                         </td>
                     </tr>
                 <?php
@@ -108,6 +114,23 @@ session_start();
 
     <!-- Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+    <!-- Sorting Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const getCellValue = (row, index) => row.children[index].innerText || row.children[index].textContent;
+
+            const comparer = (index, asc) => (a, b) => ((v1, v2) => 
+                v1 !== '' && v2 !== '' && !isNaN(v1) && !isNaN(v2) ? v1 - v2 : v1.toString().localeCompare(v2)
+            )(getCellValue(asc ? a : b, index), getCellValue(asc ? b : a, index));
+
+            document.querySelectorAll('th').forEach(th => th.addEventListener('click', (() => {
+                const table = th.closest('table');
+                Array.from(table.querySelectorAll('tr:nth-child(n+2)'))
+                    .sort(comparer(Array.from(th.parentNode.children).indexOf(th), this.asc = !this.asc))
+                    .forEach(tr => table.appendChild(tr));
+            })));
+        });
+    </script>
 
 </body>
 

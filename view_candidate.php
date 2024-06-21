@@ -1,112 +1,114 @@
 <?php
 include "db_conn.php";
-// Start the session before getting the variables
 session_start();
+//Get the Details using a applicant_id from the session
+$applicant_id = $_SESSION['applicant_id'];
+$applicant_id =17;
+$hr_onDuty = $_SESSION['username'];
+//Select from the Application table
+$stmt = $conn->prepare("SELECT *
+                        FROM applicant a WHERE a.applicant_id = ?");
+$stmt->bind_param("i", $applicant_id);
+$stmt->execute();
+$result = $stmt->get_result();
 // Retrieve candidate details from URL parameters
-$candidate_ID = $_GET["candidate_ID"];
-$first_name = $_GET["first_name"];
-$last_name = $_GET["last_name"];
-$email = $_GET["email"];
-$cell_no = $_GET["cell_no"];
+$row = $result->fetch_assoc();
+$candidate_ID = $row["applicant_id"];
+$first_name = $row["first_name"];
+$last_name = $row["last_name"];
+$email = $row["email"];
+$cell_no = $row["phone"];
+$application_position = $row["application_position"];
 
-// put the select statement to retrieve links from the socialMediaProfile for that candidate_ID
-$sql = "SELECT i.profile_url AS instagram_url, t.profile_url AS twitter_url, l.profile_url AS linkedin_url, f.profile_url AS facebook_url
-       FROM candidate c
-       INNER JOIN socialmediaprofile s ON c.candidate_id = s.candidate_id
-       LEFT JOIN twitter_profile t ON s.socialMediaID = t.socialMediaID
-       LEFT JOIN linkedin_profile l ON s.socialMediaID = l.socialMediaID
-       LEFT JOIN facebook_profile f ON s.socialMediaID = f.socialMediaID
-       LEFT JOIN instagram_profile i ON s.socialMediaID = i.socialMediaID
-       WHERE c.candidate_id = $candidate_ID";
-$result = mysqli_query($conn, $sql);
+require 'vendor/autoload.php';
 
-// Fetch the social media profile URLs
-$row = mysqli_fetch_assoc($result);
-$instagram_url = $row['instagram_url'];
-$twitter_url = $row['twitter_url'];
-$linkedin_url = $row['linkedin_url'];
-$facebook_url = $row['facebook_url'];
+use Symfony\Component\Mailer\Transport;
+use Symfony\Component\Mailer\Mailer;
+use Symfony\Component\Mime\Email;
+
+function send_email($to, $subject, $body)
+{
+    // Configure the Symfony Mailer with Gmail SMTP
+    $transport = Transport::fromDsn('smtp://swp316dproject@gmail.com:uobgvdxwwevaiakn@smtp.gmail.com:587?encryption=tls');
+    $mailer = new Mailer($transport);
+
+    $email = (new Email())
+        ->from('swp316dproject@gmail.com')
+        ->to($to)
+        ->subject($subject)
+        ->html($body);
+
+    // JavaScript to show a confirmation dialog
+    $confirmationScript = "<script>
+        var confirmation = confirm('Are you sure you want to send this email?');
+        if (confirmation) {
+            window.location.href = 'search.php';
+        }
+    </script>";
+
+    try {
+        // Send the email
+        $mailer->send($email);
+
+        // Return success message with the confirmation script
+        return 'Message has been sent' . $confirmationScript;
+    } catch (Exception $e) {
+        // Return error message with the confirmation script
+        return "Message could not be sent. Mailer Error: {$e->getMessage()}" . $confirmationScript;
+    }
+}
 
 // Check if "ACCEPT" button is clicked
-if(isset($_POST['accept'])) {
-    // Send email
-    $curl = curl_init();
+if (isset($_POST['accept'])) {
+    $interview_date = $_POST['interview_date']; // highlighted cause still waiting for a way how can a recruiter enter 
+    $interview_time = $_POST['interview_time']; // this details manually
+    // $interview_location = $_POST['interview_location'];
+    $subject = 'Application Accepted';
 
-    curl_setopt_array($curl, [
-        CURLOPT_URL => "https://mail-sender-api1.p.rapidapi.com/",
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => "",
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 30,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => "POST",
-        CURLOPT_POSTFIELDS => json_encode([
-            'sendto' => $email,
-            'name' => 'Jokers Organization', // Replace with your company name
-            'replyTo' => 'molefeofentse@hotmail.com', // Replace with your email
-            'ishtml' => 'false',
-            'title' => 'Application Accepted',
-            'body' => "Dear $first_name $last_name,<br><br>Your application has been accepted.<br><br>Regards,<br>Jokers Organization" // Customize the email message
-        ]),
-        CURLOPT_HTTPHEADER => [
-            "X-RapidAPI-Host: mail-sender-api1.p.rapidapi.com",
-            "X-RapidAPI-Key: f389caef1amsh56eb102cb5c5798p1862bfjsn2987ea5afeee",
-            "content-type: application/json"
-        ],
-    ]);
+    $body = "Dear $first_name $last_name,<br><br>
+    I hope this email finds you well.<br><br>
+I am writing to invite you for an interview for the position of <b>$application_position</b> at Tshwane University of Technology. We were impressed by your application and believe that you would be a great fit for our team.<br><br>
 
-    $response = curl_exec($curl);
-    $err = curl_error($curl);
+The interview will be conducted in person and will take approximately <b>30 - 45 minutes</b>. We will discuss your work experience, skills, and qualifications in-depth and provide you with more information about the position and our company.<br><br>
 
-    curl_close($curl);
+<strong>Interview Details:</strong><br>
+Date: $interview_date<br>
+Time: $interview_time AM<br>
+Location:
+<ul style='list-style-type: none; padding-left: 20px;'>
+    <li>Building 20-212</li>
+    <li>Block K</li>
+    <li>2 Aubrey Matlakala St</li>
+    <li>Soshanguve - K</li>
+    <li>Soshanguve</li>
+    <li>0152</li>
+</ul>
+<br>
+Thank you for your interest in our company, and we look forward to meeting you soon.<br><br>
 
-    if ($err) {
-        echo "cURL Error #:" . $err;
-    } else {
-        echo $response;
-    }
+Sincerely,<br>
+$hr_onDuty ( From HR Department) ";
 
-    // Additional logic for accepting the application
+    echo send_email($email, $subject, $body);
+
+    //Store the comment  and update details into a applicant database
+
+
 }
 
 // Check if "DECLINE" button is clicked
-if(isset($_POST['decline'])) {
-    // Send email
-    $curl = curl_init();
+if (isset($_POST['decline'])) {
+    $subject = 'Application Declined';
+    $body = "Dear $first_name $last_name,<br><br>
+    Thank you for your interest in the position at Jokers Organization. After careful consideration, we regret to inform you that we have decided to move forward with other candidates who more closely match our needs at this time.<br><br>
+    We were impressed with your qualifications and encourage you to apply for future openings that align with your skills and experiences.<br><br>
+    We wish you all the best in your job search and future professional endeavors.<br><br>
+    Regards,<br>
+    Jokers Organization";
+    echo send_email($email, $subject, $body);
 
-    curl_setopt_array($curl, [
-        CURLOPT_URL => "https://mail-sender-api1.p.rapidapi.com/",
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => "",
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 30,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => "POST",
-        CURLOPT_POSTFIELDS => json_encode([
-            'sendto' => $email,
-            'name' => 'Your Company', // Replace with your company name
-            'replyTo' => 'molefeofentse@hotmail.com', // Replace with your email
-            'ishtml' => 'false',
-            'title' => 'Application Declined',
-            'body' => "Dear $first_name $last_name,<br><br>We regret to inform you that your application has been declined.<br><br>Regards,<br>Jokers Organization" // Customize the email message
-        ]),
-        CURLOPT_HTTPHEADER => [
-            "X-RapidAPI-Host: mail-sender-api1.p.rapidapi.com",
-            "X-RapidAPI-Key: f389caef1amsh56eb102cb5c5798p1862bfjsn2987ea5afeee",
-            "content-type: application/json"
-        ],
-    ]);
+    //update the candidate and store the comment
 
-    $response = curl_exec($curl);
-    $err = curl_error($curl);
-
-    curl_close($curl);
-
-    if ($err) {
-        echo "cURL Error #:" . $err;
-    } else {
-        echo $response;
-    }
 }
 ?>
 
@@ -128,7 +130,7 @@ if(isset($_POST['decline'])) {
             background-position: center;
             background-repeat: no-repeat;
             margin: 0;
-            height: 100vh;
+            height: 90vh;
             justify-content: center;
         }
 
@@ -136,8 +138,12 @@ if(isset($_POST['decline'])) {
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 50vh;
+            height: 20vh;
+        }
 
+        .table-wrapper {
+            max-height: 400px;
+            overflow-y: auto;
         }
 
         h1 {
@@ -147,57 +153,90 @@ if(isset($_POST['decline'])) {
             font-style: oblique;
         }
 
-        .back-button {
-            border: none;
-            padding: 10px 20px;
-            border-radius: 12px;
+        .spinner-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
         }
     </style>
 </head>
 
 <body>
 
+    <!-- Add the spinner to the page -->
+    <div id="spinner-overlay" class="spinner-overlay">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
     <nav class="navbar navbar-light justify-content-center fs-3 mb-3" style="background-color: #00ff5573;">
-        Candidate Details
+        Response to a Candidate
     </nav>
     <div class="container d-flex align-items-right">
-
         <?php
-
         if (isset($_SESSION['username'])) {
             // Display an active dot and the username
             echo '<span><i class="fas fa-circle text-success me-1"></i>' . $_SESSION['username'] . '</span>';
         }
         ?>
     </div>
-    </div>
-    <div class="container mt-5">
+    <div class="container mt-1">
         <div class="row justify-content-center">
             <div class="col-lg-4">
                 <div class="card mb-3">
                     <div class="card-body text-center">
-                        <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp" alt="avatar" class="rounded-circle img-fluid" style="width: 150px;">
-                        <h2 class="mt-3"> <?php echo $first_name; ?> <?php echo $last_name; ?></h2>
-                        <p class="mb-2">Email: <?php echo $email; ?></p>
-                        <p class="mb-2">Cell Number: <?php echo $cell_no; ?></p>
+                       <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp" alt="avatar" class="rounded-circle img-fluid" style="width: 150px;">
+                        <h2 class="mt-3"><?php echo htmlspecialchars($first_name); ?> <?php echo htmlspecialchars($last_name); ?></h2>
+                        <p class="mb-2">Email: <?php echo htmlspecialchars($email); ?></p>
+                        <p class="mb-2">Cell Number: <?php echo htmlspecialchars($cell_no); ?></p>
                         <div class="d-flex justify-content-center mt-3">
-                            <form method="post">
-                                <button type="submit" class="btn btn-primary me-2" name="accept">ACCEPT</button>
-                                <button type="submit" name="decline" class="btn btn-outline-primary">DECLINE</button>
+
+                            <form id="submitEmail" method="post">
+                                <div class="form-group">
+                                    <textarea class="form-control mb-3" id="recruiterComment" placeholder="Leave a comment" name="recruiterComment" rows="3" style="border: 1px solid #ced4da; padding: .375rem .75rem;"></textarea>
+                                    <div class="row mb-4">
+                                        <label class="col-12">
+                                            <u><strong>Interview Details</strong></u>
+                                        </label>
+                                        <div class="col-6">
+                                            <label for="interview_date" class="form-label">Date:</label>
+                                            <input type="date" id="interview_date" name="interview_date" class="form-control">
+                                        </div>
+                                        <div class="col-6">
+                                            <label for="interview_time" class="form-label">Time:</label>
+                                            <input type="time" id="interview_time" name="interview_time" class="form-control">
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary me-5" name="accept">ACCEPT</button>
+                                    <button type="submit" name="decline" class="btn btn-outline-primary">DECLINE</button>
+                                </div>
                             </form>
+
                         </div>
                     </div>
-
                 </div>
 
-                <!-- URLs -->
+                <!-- URLs 
                 <div class="card mb-3">
                     <div class="card-body text-center">
                         <ul class="list-unstyled mb-0">
-                            <li class="mb-2"><a href="<?php echo $linkedin_url; ?>" target="_blank"><i class="fab fa-linkedin fa-lg me-2"></i> LinkedIn</a></li>
-                            <li class="mb-2"><a href="<?php echo $twitter_url; ?>" target="_blank"><i class="fab fa-twitter fa-lg me-2"></i> Twitter</a></li>
-                            <li class="mb-2"><a href="<?php echo $instagram_url; ?>" target="_blank"><i class="fab fa-instagram fa-lg me-2"></i> Instagram</a></li>
-                            <li class="mb-2"><a href="<?php echo $facebook_url; ?>" target="_blank"><i class="fab fa-facebook-f fa-lg me-2"></i> Facebook</a></li>
+                            <li class="mb-2"><a href="<?php echo htmlspecialchars($linkedin_url); ?>" target="_blank"><i class="fab fa-linkedin fa-lg me-2"></i> LinkedIn</a></li>
+                            <li class="mb-2"><a href="<?php echo htmlspecialchars($twitter_url); ?>" target="_blank"><i class="fab fa-twitter fa-lg me-2"></i> Twitter</a></li>
+                            <li class="mb-2"><a href="<?php echo htmlspecialchars($instagram_url); ?>" target="_blank"><i class="fab fa-instagram fa-lg me-2"></i> Instagram</a></li>
+                            <li class="mb-2"><a href="<?php echo htmlspecialchars($facebook_url); ?>" target="_blank"><i class="fab fa-facebook-f fa-lg me-2"></i> Facebook</a></li>
                         </ul>
                     </div>
                 </div>
@@ -205,11 +244,15 @@ if(isset($_POST['decline'])) {
                 <div class="d-flex justify-content-between">
                     <a href="candidate_table.php" class="btn btn-primary">Back</a>
                     <a href="index.php" class="btn btn-danger">Logout</a>
-                </div>
+                </div> -->
             </div>
         </div>
     </div>
-
+    <script>
+        document.getElementById('submitEmail').addEventListener('submit', function () {
+            document.getElementById('spinner-overlay').style.display = 'flex';
+        });
+    </script>
 </body>
 
 </html>
