@@ -11,7 +11,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $application_position = htmlspecialchars($_POST["application_position"]);
     $identity_number = htmlspecialchars($_POST["identity_number"]);
     $recruiter_ID = null; // Replace this with the actual recruiter ID you want to use
-    $captured_date = date("Y-m-d H:i:s"); // Current date for captured_date
+    $captured_date = null; // Current date for captured_date
     $status = 'Pending'; // Example status, replace with actual value if needed
 
     // Check if identity number is unique

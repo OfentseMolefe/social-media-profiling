@@ -28,11 +28,6 @@
       height: 3rem;
     }
   </style>
-  <script>
-    document.getElementById('captureForm').addEventListener('submit', function() {
-            document.getElementById('spinner-overlay').style.display = 'flex';
-        });
-  </script>
 </head>
 
 <body>
@@ -58,7 +53,7 @@
           }
           ?>
 
-          <form id="" method="POST" action="login.php">
+          <form id="loginForm" method="POST" action="login.php">
             <div class="p-1">
               <div>Email </div>
               <div><input name="username" required class="form-control" placeholder="name@example.com"></div>
@@ -85,6 +80,24 @@
     echo "<script>document.getElementById('wrongpasswordlbl').style.display = 'block';</script>";
   }
   ?>
+
+  <script>
+    $(document).ready(function() {
+      $('#loginForm').on('submit', function() {
+        // Validate form fields
+        var isValid = true;
+        $('#loginForm input[required]').each(function() {
+          if ($(this).val() === '') {
+            isValid = false;
+          }
+        });
+
+        if (isValid) {
+          $('#spinner-overlay').css('display', 'flex');
+        }
+      });
+    });
+  </script>
 </body>
 
 </html>
