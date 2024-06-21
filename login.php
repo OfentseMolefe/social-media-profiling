@@ -17,7 +17,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $row = $result->fetch_assoc();
 
         // Store username and recruiter ID in session
-        //$_SESSION['username'] = $username;
+        $_SESSION['username'] = $username;
         $last_name = $row['last_name'];
         $first_name = $row['first_name'];
 
