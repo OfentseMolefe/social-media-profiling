@@ -1,7 +1,7 @@
 <?php
 $servername = "localhost";
 $username = "root";
-$password = "root";
+$password = "admin";
 $dbname = "userandmediadb";
 
 // Create connection

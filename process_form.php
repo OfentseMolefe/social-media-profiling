@@ -13,7 +13,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 
     // Check if identity number is unique
-    $check_query = "SELECT * FROM applicant WHERE identity_number = ?";
+    $check_query = "SELECT * FROM candidate WHERE identity_number = ?";
     $stmt = $conn->prepare($check_query);
     $stmt->bind_param("s", $identity_number);
     $stmt->execute();
@@ -26,7 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 
     // Insert data into the database using prepared statements
-    $insert_query = "INSERT INTO person (first_name, last_name, email, address, motivation, phone, application_position, identity_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    $insert_query = "INSERT INTO person (first_name, last_name, person_ID, occcupation, email) VALUES (?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($insert_query);
     $stmt->bind_param("ssssssss", $first_name, $last_name, $email, $address, $motivation, $phone, $application_position, $identity_number);
 

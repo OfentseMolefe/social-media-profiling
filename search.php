@@ -6,11 +6,11 @@ include "db_conn.php";
 // Retrieve the first name and last name from the URL if they are set and add to the session
 $first_name = isset($_GET['first_name']) ? htmlspecialchars($_GET['first_name']) : '';
 $last_name = isset($_GET['last_name']) ? htmlspecialchars($_GET['last_name']) : '';
-$applicant_id = isset($_GET['applicant_id']) ? htmlspecialchars($_GET['applicant_id']) : '';
+$candidate_ID = isset($_GET['candidate_ID']) ? htmlspecialchars($_GET['candidate_ID']) : '';
 
 $_SESSION['first_name'] = $first_name;
 $_SESSION['last_name'] = $last_name;
-$_SESSION['applicant_id'] = $applicant_id; // Add the application id into the session
+$_SESSION['candidate_ID'] = $candidate_ID; // Add the application id into the session
 
 // Concatenate first name and last name with a space between them
 $full_name = $first_name . ' ' . $last_name;
@@ -143,19 +143,34 @@ $_SESSION['full_name'] = $full_name;
                     <tbody>
                         <?php
                         $sql = "SELECT * FROM `applicant`";
+                        /*
+                        for the candidate
+                             $sql = "SELECT c.candidate_ID, p.first_name, p.last_name, p.email, c.cellphone_number,p.occupation 
+                              FROM candidate c
+                              JOIN person p ON r.person_ID = p.person_ID
+                              WHERE p.first_name != 'system'";
+                              $result = mysqli_query($conn, $sql);
+                              $isLoggedIn = $_SESSION['recruiter_ID'];
+
+
+
+
+                        */
+
+
                         $result = mysqli_query($conn, $sql);
                         while ($row = mysqli_fetch_assoc($result)) {
                         ?>
                             <tr onclick="populateSearchBar('<?php echo $row["first_name"] ?>', '<?php echo $row["last_name"] ?>')">
-                                <td><?php echo $row["applicant_id"] ?></td>
+                                <td><?php echo $row["candidate_ID"] ?></td>
                                 <td><?php echo $row["first_name"] ?></td>
                                 <td><?php echo $row["last_name"] ?></td>
                                 <td><?php echo $row["email"] ?></td>
-                                <td><?php echo $row["phone"] ?></td>
-                                <td><?php echo $row["application_position"] ?></td>
+                                <td><?php echo $row["cellphone_number"] ?></td>
+                                <td><?php echo $row["occupation"] ?></td>
                                 <td>
-                                    <a href="view_applicant.php?identity_number=<?php echo $row["applicant_id"] ?>" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> Vetting</a>
-                                    <a href="search.php?first_name=<?php echo $row["first_name"]; ?>&last_name=<?php echo $row["last_name"]; ?>&applicant_id=<?php echo $row["applicant_id"]; ?>" class="btn btn-info btn-sm"><i class="fas fa-search"></i> Search</a>
+                                    <a href="view_applicant.php?identity_number=<?php echo $row["candidate_ID"] ?>" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> Vetting</a>
+                                    <a href="search.php?first_name=<?php echo $row["first_name"]; ?>&last_name=<?php echo $row["last_name"]; ?>&candidate_ID=<?php echo $row["candidate_ID"]; ?>" class="btn btn-info btn-sm"><i class="fas fa-search"></i> Search</a>
                                </td>
                             </tr>
                         <?php

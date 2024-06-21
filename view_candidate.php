@@ -2,18 +2,18 @@
 include "db_conn.php";
 session_start();
 //Get the Details using a applicant_id from the session
-$applicant_id = $_SESSION['applicant_id'];
-$applicant_id =17;
+$candidate_ID = $_SESSION['candidate_ID'];
+$candidate_ID =17;
 $hr_onDuty = $_SESSION['username'];
 //Select from the Application table
 $stmt = $conn->prepare("SELECT *
-                        FROM applicant a WHERE a.applicant_id = ?");
-$stmt->bind_param("i", $applicant_id);
+                        FROM applicant a WHERE a.candidate_ID = ?");
+$stmt->bind_param("i", $candidate_ID);
 $stmt->execute();
 $result = $stmt->get_result();
 // Retrieve candidate details from URL parameters
 $row = $result->fetch_assoc();
-$candidate_ID = $row["applicant_id"];
+$candidate_ID = $row["candidate_ID"];
 $first_name = $row["first_name"];
 $last_name = $row["last_name"];
 $email = $row["email"];

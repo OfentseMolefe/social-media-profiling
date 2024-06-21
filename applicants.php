@@ -69,7 +69,7 @@ session_start();
         <table class="table table-hover text-center" id="applicantTable">
             <thead class="table-dark">
                 <tr>
-                    <th scope="col" data-column="applicant_id">Applicant ID</th>
+                    <th scope="col" data-column="applicant_id">Candidate ID</th>
                     <th scope="col" data-column="first_name">First Name</th>
                     <th scope="col" data-column="last_name">Last Name</th>
                     <th scope="col" data-column="email">Email</th>
@@ -80,6 +80,21 @@ session_start();
             </thead>
             <tbody>
                 <?php
+                /*
+                             for the candidate
+                             $sql = "SELECT c.candidate_ID, p.first_name, p.last_name, p.email, c.cellphone_number,p.occupation 
+                              FROM candidate c
+                              JOIN person p ON r.person_ID = p.person_ID
+                              WHERE p.first_name != 'system'";
+                              $result = mysqli_query($conn, $sql);
+                              $isLoggedIn = $_SESSION['recruiter_ID'];
+
+
+
+                */
+
+
+
                 $sql = "SELECT * FROM `applicant`";
                 $result = mysqli_query($conn, $sql);
                 while ($row = mysqli_fetch_assoc($result)) {
