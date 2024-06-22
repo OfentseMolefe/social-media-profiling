@@ -212,7 +212,7 @@ while ($row_count = mysqli_fetch_assoc($result_count)) {
                 <div class="status-circle declined"><?php  echo $declined_count; ?></div> Declined
             </div>
             <div class="col">
-                <div class="status-circle in-progress"><?php echo $in_progress_count; ?></div> In Progress
+                <div class="status-circle in-progress"><?php echo $in_progress_count; ?></div> Vetted
             </div>
             <div class="col">
                 <div class="status-circle completed"><?php  echo $completed_count; ?></div> Completed
