@@ -18,10 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Store username and recruiter ID in session
         $_SESSION['username'] = $username;
-        $last_name = $row['last_name'];
-        $first_name = $row['first_name'];
-
-        $_SESSION['username'] = $first_name.' '.$last_name;
+       
         $_SESSION['recruiterID'] = $row['recruiter_ID']; // Recruiter Id for updating Candidate tables
         // You can get the recruiter details here for inserting them into a session
         $_SESSION['occupationRec'] = $row['occupation']; 

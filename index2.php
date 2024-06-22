@@ -41,7 +41,11 @@
     <img src="assets/Login_Background.jpg" class="w-100 fixed-top" style="z-index: -1;">
     <div class="float-right position-absolute" style="left:100px; top:150px;">
       <div class="card" style="width:500px;">
-        <div class="card-header">Enter Your Login Details</div>
+        <div class="card-header">Enter Your Login Details
+        <p style="color: red;font-size: 15px;">Only Employees are allowed to log in.</p>
+
+        </div>
+       
         <div class="card-body">
           <?php
           if (isset($_GET["msg"])) {
