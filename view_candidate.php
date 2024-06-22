@@ -2,10 +2,14 @@
 include "db_conn.php";
 session_start();
 //Get the Details using a applicant_id from the session
-$applicant_id = $_SESSION['candidate_ID'];
-$applicant_id =21;
+$applicant_id = $_SESSION['candidate_ID']; // check this session where it is populated
+$applicant_id = 21;
 $hr_onDuty = $_SESSION['username'];
+
+$recruiterID = $_SESSION['recruiterID'];
+//$recruiterID =1025;
 //Select from the Application table
+
 $stmt = $conn->prepare("SELECT c.candidate_ID,p.first_name,p.last_name,p.email,c.cellphone_number,p.occupation
                         FROM candidate c , person p WHERE p.person_ID = c.person_ID AND c.candidate_ID = ?");
 $stmt->bind_param("i", $applicant_id);
@@ -60,46 +64,58 @@ function send_email($to, $subject, $body)
 
 // Check if "ACCEPT" button is clicked
 if (isset($_POST['accept'])) {
-    $interview_date = $_POST['interview_date']; // highlighted cause still waiting for a way how can a recruiter enter 
-    $interview_time = $_POST['interview_time']; // this details manually
-    // $interview_location = $_POST['interview_location'];
+    $status = 'Accepted';
+    $comment = $_POST['recruiterComment'];
     $subject = 'Application Accepted';
 
+    // Manually entered interview details
+    $interview_date = isset($_POST['interview_date']) ? $_POST['interview_date'] : '';
+    $interview_time = isset($_POST['interview_time']) ? $_POST['interview_time'] : '';
+
+    // Prepare email body with interview details
     $body = "Dear $first_name $last_name,<br><br>
     I hope this email finds you well.<br><br>
-I am writing to invite you for an interview for the position of <b>$application_position</b> at Tshwane University of Technology. We were impressed by your application and believe that you would be a great fit for our team.<br><br>
+    I am writing to invite you for an interview for the position of <b>$application_position</b> at Tshwane University of Technology. We were impressed by your application and believe that you would be a great fit for our team.<br><br>
 
-The interview will be conducted in person and will take approximately <b>30 - 45 minutes</b>. We will discuss your work experience, skills, and qualifications in-depth and provide you with more information about the position and our company.<br><br>
+    The interview will be conducted in person and will take approximately <b>30 - 45 minutes</b>. We will discuss your work experience, skills, and qualifications in-depth and provide you with more information about the position and our company.<br><br>
 
-<strong>Interview Details:</strong><br>
-Date: $interview_date<br>
-Time: $interview_time AM<br>
-Location:
-<ul style='list-style-type: none; padding-left: 20px;'>
-    <li>Building 20-212</li>
-    <li>Block K</li>
-    <li>2 Aubrey Matlakala St</li>
-    <li>Soshanguve - K</li>
-    <li>Soshanguve</li>
-    <li>0152</li>
-</ul>
-<br>
-Thank you for your interest in our company, and we look forward to meeting you soon.<br><br>
+    <strong>Interview Details:</strong><br>
+    Date: $interview_date<br>
+    Time: $interview_time<br>
+    Location:
+    <ul style='list-style-type: none; padding-left: 20px;'>
+        <li>Building 20-212</li>
+        <li>Block K</li>
+        <li>2 Aubrey Matlakala St</li>
+        <li>Soshanguve - K</li>
+        <li>Soshanguve</li>
+        <li>0152</li>
+    </ul>
+    <br>
+    Thank you for your interest in our company, and we look forward to meeting you soon.<br><br>
 
-Sincerely,<br>
-$hr_onDuty ( From HR Department) ";
+    Sincerely,<br>
+    $hr_onDuty (From HR Department)";
 
     echo send_email($email, $subject, $body);
 
-    //Store the comment and update details into a candidate table
+    // Update candidate table for "ACCEPT"
+    $sqlCandidate = "UPDATE candidate 
+                     SET captured_date = NOW(), status = ?, recruiter_ID = ?, comment = ?
+                     WHERE candidate_ID = ?";
+    $stmtCandidate = $conn->prepare($sqlCandidate);
+    $stmtCandidate->bind_param("sisi", $status, $recruiterID, $comment, $applicant_id);
+    $stmtCandidate->execute();
 
-
+    $stmtCandidate->close();
 }
 
 // Check if "DECLINE" button is clicked
-if (isset($_POST['decline'])) 
-{
+if (isset($_POST['decline'])) {
+    $status = 'Declined';
+    $comment = $_POST['recruiterComment'];
     $subject = 'Application Declined';
+
     $body = "Dear $first_name $last_name,<br><br>
     Thank you for your interest in the position at Jokers Organization. After careful consideration, we regret to inform you that we have decided to move forward with other candidates who more closely match our needs at this time.<br><br>
     We were impressed with your qualifications and encourage you to apply for future openings that align with your skills and experiences.<br><br>
@@ -108,9 +124,15 @@ if (isset($_POST['decline']))
     Jokers Organization";
     echo send_email($email, $subject, $body);
 
-    //update the candidate and store the comment
-    
+    // Update candidate table for "DECLINE"
+    $sqlCandidate = "UPDATE candidate 
+                     SET captured_date = NOW(), status = ?, recruiter_ID = ?, comment = ?
+                     WHERE candidate_ID = ?";
+    $stmtCandidate = $conn->prepare($sqlCandidate);
+    $stmtCandidate->bind_param("sisi", $status, $recruiterID, $comment, $applicant_id);
+    $stmtCandidate->execute();
 
+    $stmtCandidate->close();
 }
 ?>
 
@@ -200,7 +222,7 @@ if (isset($_POST['decline']))
             <div class="col-lg-4">
                 <div class="card mb-3">
                     <div class="card-body text-center">
-                       <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp" alt="avatar" class="rounded-circle img-fluid" style="width: 150px;">
+                        <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp" alt="avatar" class="rounded-circle img-fluid" style="width: 150px;">
                         <h2 class="mt-3"><?php echo htmlspecialchars($first_name); ?> <?php echo htmlspecialchars($last_name); ?></h2>
                         <p class="mb-2">Email: <?php echo htmlspecialchars($email); ?></p>
                         <p class="mb-2">Cell Number: <?php echo htmlspecialchars($cell_no); ?></p>
@@ -251,7 +273,7 @@ if (isset($_POST['decline']))
         </div>
     </div>
     <script>
-        document.getElementById('submitEmail').addEventListener('submit', function () {
+        document.getElementById('submitEmail').addEventListener('submit', function() {
             document.getElementById('spinner-overlay').style.display = 'flex';
         });
     </script>
