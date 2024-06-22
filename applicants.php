@@ -95,20 +95,22 @@ session_start();
 
 
 
-                $sql = "SELECT * FROM `applicant`";
+                $sql = "SELECT c.candidate_ID, p.first_name, p.last_name, p.email, c.cellphone_number, p.occupation
+                FROM candidate c
+                JOIN person p ON c.person_ID = p.person_ID";
                 $result = mysqli_query($conn, $sql);
                 while ($row = mysqli_fetch_assoc($result)) {
                 ?>
                     <tr>
-                        <td><?php echo $row["applicant_id"] ?></td>
-                        <td><?php echo $row["first_name"] ?></td>
-                        <td><?php echo $row["last_name"] ?></td>
-                        <td><?php echo $row["email"] ?></td>
-                        <td><?php echo $row["phone"] ?></td>
-                        <td><?php echo $row["application_position"] ?></td>
+                    <td><?php echo $row["candidate_ID"]; ?></td>
+                            <td><?php echo $row["first_name"]; ?></td>
+                            <td><?php echo $row["last_name"]; ?></td>
+                            <td><?php echo $row["email"]; ?></td>
+                            <td><?php echo $row["cellphone_number"]; ?></td>
+                            <td><?php echo $row["occupation"]; ?></td>
                         <td>
                             <a href="view_applicant.php?identity_number=<?php echo $row["identity_number"] ?>" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> Vetting</a>
-                            <a href="search.php?first_name=<?php echo $row["first_name"]; ?>&last_name=<?php echo $row["last_name"]; ?>&applicant_id=<?php echo $row["applicant_id"]; ?>" class="btn btn-info btn-sm"><i class="fas fa-search"></i> Search</a>
+                            <a href="search.php?first_name=<?php echo $row["first_name"]; ?>&last_name=<?php echo $row["last_name"]; ?>&candidate_ID=<?php echo $row["candidate_ID"]; ?>" class="btn btn-info btn-sm"><i class="fas fa-search"></i> Search</a>
                             <a href="view_applicant.php?identity_number=<?php echo $row["identity_number"] ?>" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> View</a>
                         </td>
                     </tr>
