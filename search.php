@@ -20,7 +20,6 @@ $_SESSION['full_name'] = $full_name;
 // Count applicants based on their status
 $accepted_count = 0;
 $declined_count = 0;
-$in_progress_count = 0;
 $completed_count = 0;
 
 //$sql_count = "SELECT status_id, COUNT(*) as count FROM applicant GROUP BY status_id";
@@ -30,19 +29,32 @@ $completed_count = 0;
    JOIN person p ON c.person_ID = p.person_ID
    GROUP BY c.status,c.candidate_ID, p.first_name, p.last_name, p.email, c.cellphone_number, p.occupation ";
    
-   $sql_total = "SELECT COUNT(*) as total FROM Candidate";
+        // Combined SQL query
+        $sql = "
+        SELECT 
+            COUNT(*) as total, 
+            COUNT(CASE WHEN status = 'pending' THEN 1 END) as pending_total,
+            COUNT(CASE WHEN status = 'in_progress' THEN 1 END) as in_progress_total
+        FROM 
+            Candidate
+        ";
 
-   // Initialize the total_candidates variable
-   $total_candidates = 0;
+        // Initialize the variables
+        $total_candidates = 0;
+        $pending_total = 0;
+        $in_progress_count = 0;
 
-if ($result = $conn->query($sql_total)) {
-    // Fetch the result
-    if ($row = $result->fetch_assoc()) {
-        $total_candidates = $row['total'];
-    }
-    // Free the result set
-    $result->free();
-}
+        // Execute the query
+        if ($result = $conn->query($sql)) {
+        // Fetch the result
+        if ($row = $result->fetch_assoc()) {
+            $total_candidates = $row['total'];
+            $pending_total = $row['pending_total'];
+            $in_progress_count = $row['in_progress_total'];
+        }
+        // Free the result set
+        $result->free();
+        }
    
 
  
@@ -134,6 +146,24 @@ while ($row_count = mysqli_fetch_assoc($result_count)) {
             width: 3rem;
             height: 3rem;
         }
+        .status-circle {
+        width: 50px; /* Adjust width as needed */
+        height: 50px; /* Adjust height as needed */
+        border-radius: 50%;
+        text-align: center;
+        line-height: 50px; /* Center text vertically */
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    .completed {
+        background-color: green; /* Default color (example: green) */
+        color: white; /* Text color (example: white) */
+    }
+
+    .yellow-circle {
+        background-color: yellow !important; /* Yellow background color */
+    }
     </style>
 </head>
 
@@ -212,13 +242,13 @@ while ($row_count = mysqli_fetch_assoc($result_count)) {
                 <div class="status-circle declined"><?php  echo $declined_count; ?></div> Declined
             </div>
             <div class="col">
-                <div class="status-circle in-progress"><?php echo $in_progress_count; ?></div> In Progress
+                <div class="status-circle in-progress"><?php echo $pending_total; ?></div> In Progress
             </div>
             <div class="col">
                 <div class="status-circle completed"><?php  echo $completed_count; ?></div> Vetted
             </div>
             <div class="col">
-                <div class="status-circle completed"><?php  echo $total_candidates; ?></div> Total Candidates
+                <div class="status-circle  yellow-circle"><?php echo $total_candidates; ?></div> Total Candidates
             </div>
         </div>
         <br>
