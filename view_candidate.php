@@ -2,23 +2,23 @@
 include "db_conn.php";
 session_start();
 //Get the Details using a applicant_id from the session
-$applicant_id = $_SESSION['applicant_id'];
-$applicant_id =17;
+$applicant_id = $_SESSION['candidate_ID'];
+$applicant_id =21;
 $hr_onDuty = $_SESSION['username'];
 //Select from the Application table
-$stmt = $conn->prepare("SELECT *
-                        FROM applicant a WHERE a.applicant_id = ?");
+$stmt = $conn->prepare("SELECT c.candidate_ID,p.first_name,p.last_name,p.email,c.cellphone_number,p.occupation
+                        FROM candidate c , person p WHERE p.person_ID = c.person_ID AND c.candidate_ID = ?");
 $stmt->bind_param("i", $applicant_id);
 $stmt->execute();
 $result = $stmt->get_result();
 // Retrieve candidate details from URL parameters
 $row = $result->fetch_assoc();
-$candidate_ID = $row["applicant_id"];
+$candidate_ID = $row["candidate_ID"];
 $first_name = $row["first_name"];
 $last_name = $row["last_name"];
 $email = $row["email"];
-$cell_no = $row["phone"];
-$application_position = $row["application_position"];
+$cell_no = $row["cellphone_number"];
+$application_position = $row["occupation"];
 
 require 'vendor/autoload.php';
 
@@ -91,13 +91,14 @@ $hr_onDuty ( From HR Department) ";
 
     echo send_email($email, $subject, $body);
 
-    //Store the comment  and update details into a applicant database
+    //Store the comment and update details into a candidate table
 
 
 }
 
 // Check if "DECLINE" button is clicked
-if (isset($_POST['decline'])) {
+if (isset($_POST['decline'])) 
+{
     $subject = 'Application Declined';
     $body = "Dear $first_name $last_name,<br><br>
     Thank you for your interest in the position at Jokers Organization. After careful consideration, we regret to inform you that we have decided to move forward with other candidates who more closely match our needs at this time.<br><br>
@@ -108,6 +109,7 @@ if (isset($_POST['decline'])) {
     echo send_email($email, $subject, $body);
 
     //update the candidate and store the comment
+    
 
 }
 ?>
@@ -221,7 +223,7 @@ if (isset($_POST['decline'])) {
                                         </div>
                                     </div>
                                     <button type="submit" class="btn btn-primary me-5" name="accept">ACCEPT</button>
-                                    <button type="submit" name="decline" class="btn btn-outline-primary">DECLINE</button>
+                                    <button type="submit" name="decline" class="btn btn-danger">DECLINE</button>
                                 </div>
                             </form>
 
