@@ -64,9 +64,9 @@ session_start();
       </thead>
       <tbody>
         <?php
-        $sql = "SELECT candidate.candidate_ID, candidate.recruiter_ID, person.first_name, person.last_name, person.email, candidate.cellphone_number, candidate.captured_date 
+        $sql = "SELECT candidate.candidate_ID, candidate.recruiter_ID, applicant.first_name, applicant.last_name, applicant.email, applicant.phone, candidate.captured_date 
             FROM candidate 
-            INNER JOIN person ON candidate.candidate_ID = person.person_id";
+            INNER JOIN applicant ON candidate.applicant_ID = applicant.applicant_ID";
         $result = mysqli_query($conn, $sql);
         while ($row = mysqli_fetch_assoc($result)) {
         ?>
@@ -79,7 +79,7 @@ session_start();
             <td><?php echo $row["phone"] ?></td>
             <td><?php echo $row["captured_date"] ?></td>
             <td>
-              <a href="view_candidate.php?candidate_ID=<?php echo $row["candidate_ID"] ?>&first_name=<?php echo $row["first_name"] ?>&last_name=<?php echo $row["last_name"] ?>&email=<?php echo $row["email"] ?>&cell_no=<?php echo $row["cellphone_number"] ?>" class="link-dark"><i class="fa-solid fa-eye me-3"></i></a>
+              <a href="view_candidate.php?candidate_ID=<?php echo $row["candidate_ID"] ?>&first_name=<?php echo $row["first_name"] ?>&last_name=<?php echo $row["last_name"] ?>&email=<?php echo $row["email"] ?>&cell_no=<?php echo $row["phone"] ?>" class="link-dark"><i class="fa-solid fa-eye me-3"></i></a>
               <a href="cand_Delete.php?candidate_ID=<?php echo $row["candidate_ID"] ?>" class="link-dark"><i class="fa-solid fa-trash fs-5 me-3"></i></a>
             </td>
           </tr>

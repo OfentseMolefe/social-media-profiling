@@ -28,13 +28,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION['recruiterID'] = $row['recruiter_ID']; // Recruiter Id for updating Candidate tables
         $_SESSION['occupationRec'] = $row['occupation']; 
 
-        //initalize values in a session
-        $_SESSION['accepted_count'] = 0;
-        $_SESSION['declined_count'] = 0;
-        $_SESSION['in_progress_count'] = 0;
-        $_SESSION['completed_count'] = 0;
-
-
         // Check if the password is "12345"
         if ($password == "12345") {
             // Redirect to updatepassword.php  

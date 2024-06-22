@@ -8,7 +8,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $address = htmlspecialchars($_POST["address"]);
     $motivation = htmlspecialchars($_POST["motivation"]);
     $phone = htmlspecialchars($_POST["phone"]);
-    $occupation= htmlspecialchars($_POST["application_position"]);
+    $application_position = htmlspecialchars($_POST["application_position"]);
     $identity_number = htmlspecialchars($_POST["identity_number"]);
     $recruiter_ID = null; // Replace this with the actual recruiter ID you want to use
     $captured_date = null; // Current date for captured_date

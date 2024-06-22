@@ -48,12 +48,12 @@ if (!$result) {
 $row = mysqli_fetch_assoc($result);
 $applicantID = $row['$candidate_ID'] ?? null;
 
-if (!$candidate_ID) {
+if (!$applicantID) {
     die("Applicant not found.");
 }
 
 // Add applicant ID into the session
-$_SESSION['applicant_id'] = $candidate_ID;
+$_SESSION['applicant_id'] = $applicantID;
 
 // Push the name to the session
 $_SESSION['merged_first_middle_name'] = $merged_first_middle_name;

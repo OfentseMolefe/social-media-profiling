@@ -8,7 +8,7 @@ $first_name = isset($_SESSION['merged_first_middle_name']) ? $_SESSION['merged_f
 $last_name = isset($_SESSION['merged_last_name']) ? $_SESSION['merged_last_name'] : '';
 
 // Prepare the SQL statement using a prepared statement
-$sql = "SELECT email, phone, candidate_ID FROM candidate WHERE last_name = ? AND first_name = ?";
+$sql = "SELECT email, phone, applicant_id FROM applicant WHERE last_name = ? AND first_name = ?";
 $stmt = mysqli_prepare($conn, $sql);
 
 // Bind parameters
@@ -25,13 +25,13 @@ if ($applicant = mysqli_fetch_assoc($result)) {
     // Fetch email and phone if the applicant exists
     $email = $applicant['email'];
     $phone = $applicant['phone'];
-    $candidate_ID = $applicant['candidate_ID']; // Fetching applicant_id here
+    $applicantID = $applicant['applicant_id']; // Fetching applicant_id here
     
 } else {
     // If the applicant does not exist, set email and phone to empty strings
     $email = '';
     $phone = '';
-    $candidate_ID = ''; // Set applicantID to empty string if applicant does not exist
+    $applicantID = ''; // Set applicantID to empty string if applicant does not exist
 }
 
 // Close the statement
@@ -54,8 +54,8 @@ echo "Recruiter ID: $recruiterID <br>";
 // Check if the form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['social_profiles'])) {
     //INSERT data into candidate
-    $sql1 = "INSERT INTO Candidate (candidate_ID, recruiter_ID) 
-             VALUES ('$candidate_ID','$recruiterID')";
+    $sql1 = "INSERT INTO Candidate (applicant_id, recruiter_ID) 
+             VALUES ('$applicantID','$recruiterID')";
 
     if (mysqli_query($conn, $sql1)) {
         $candidateId = mysqli_insert_id($conn);
