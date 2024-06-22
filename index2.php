@@ -42,18 +42,17 @@
     <div class="float-right position-absolute" style="left:100px; top:150px;">
       <div class="card" style="width:500px;">
         <div class="card-header">Enter Your Login Details
-        <p style="color: red;font-size: 15px;">Only Employees are allowed to log in.</p>
-
+          <p style="color: red; font-size: 15px;">Only Employees are allowed to log in.</p>
         </div>
-       
+
         <div class="card-body">
           <?php
           if (isset($_GET["msg"])) {
             $msg = $_GET["msg"];
             echo '<div class="alert alert-warning alert-dismissible fade show" role="alert" style="background-color: #ffcccc; border-color: #ff0000; color: #ff0000;">
-               ' . $msg . '
-               <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-             </div>';
+              ' . $msg . '
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>';
           }
           ?>
 
