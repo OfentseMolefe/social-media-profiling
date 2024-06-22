@@ -38,7 +38,7 @@ $merged_first_middle_name = trim($first_name . ' ' . $middle_name);
 $full_name = $merged_first_middle_name . '%20' . $last_name;
 
 // Check if the person exists
-$sql = "SELECT * FROM applicant WHERE first_name = '$merged_first_middle_name' AND last_name = '$last_name'";
+$sql = "SELECT c.candidate_id FROM candidate c, person p WHERE  p.person_id = c.person_id AND p.first_name = '$merged_first_middle_name' AND p.last_name = '$last_name'";
 $result = mysqli_query($conn, $sql);
 
 if (!$result) {
@@ -46,7 +46,7 @@ if (!$result) {
 }
 
 $row = mysqli_fetch_assoc($result);
-$applicantID = $row['applicant_id'] ?? null;
+$applicantID = $row['$candidate_ID'] ?? null;
 
 if (!$applicantID) {
     die("Applicant not found.");
