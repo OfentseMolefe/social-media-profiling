@@ -118,7 +118,6 @@
             <div class="col-md-3 register-left">
                 <img src="https://image.ibb.co/n7oTvU/logo_white.png" alt="" />
                 <h3>Welcome</h3>
-                <p>You are more than welcome to log in</p>
                 <form action="index2.php">
                     <input type="submit" value="Login" class="btn btn-primary btn-lg" /><br />
                 </form>
