@@ -73,7 +73,7 @@ session_start();
         JOIN person p ON r.person_ID = p.person_ID
         WHERE p.first_name != 'system'";
         $result = mysqli_query($conn, $sql);
-        $isLoggedIn = $_SESSION['recruiter_ID'];
+        $isLoggedIn = $_SESSION['recruiterID'];
 
         while ($row = mysqli_fetch_assoc($result)) {
           // check the current user
