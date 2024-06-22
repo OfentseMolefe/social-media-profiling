@@ -28,11 +28,6 @@
       height: 3rem;
     }
   </style>
-  <script>
-    document.getElementById('captureForm').addEventListener('submit', function() {
-            document.getElementById('spinner-overlay').style.display = 'flex';
-        });
-  </script>
 </head>
 
 <body>
@@ -46,19 +41,22 @@
     <img src="assets/Login_Background.jpg" class="w-100 fixed-top" style="z-index: -1;">
     <div class="float-right position-absolute" style="left:100px; top:150px;">
       <div class="card" style="width:500px;">
-        <div class="card-header">Enter Your Login Details</div>
+        <div class="card-header">Enter Your Login Details
+          <p style="color: red; font-size: 15px;">Only Employees are allowed to log in.</p>
+        </div>
+
         <div class="card-body">
           <?php
           if (isset($_GET["msg"])) {
             $msg = $_GET["msg"];
             echo '<div class="alert alert-warning alert-dismissible fade show" role="alert" style="background-color: #ffcccc; border-color: #ff0000; color: #ff0000;">
-               ' . $msg . '
-               <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-             </div>';
+              ' . $msg . '
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>';
           }
           ?>
 
-          <form id="" method="POST" action="login.php">
+          <form id="loginForm" method="POST" action="login.php">
             <div class="p-1">
               <div>Email </div>
               <div><input name="username" required class="form-control" placeholder="name@example.com"></div>
@@ -85,6 +83,24 @@
     echo "<script>document.getElementById('wrongpasswordlbl').style.display = 'block';</script>";
   }
   ?>
+
+  <script>
+    $(document).ready(function() {
+      $('#loginForm').on('submit', function() {
+        // Validate form fields
+        var isValid = true;
+        $('#loginForm input[required]').each(function() {
+          if ($(this).val() === '') {
+            isValid = false;
+          }
+        });
+
+        if (isValid) {
+          $('#spinner-overlay').css('display', 'flex');
+        }
+      });
+    });
+  </script>
 </body>
 
 </html>
