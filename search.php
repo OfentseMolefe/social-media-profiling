@@ -132,12 +132,12 @@ $_SESSION['full_name'] = $full_name;
             <table class="table table-hover text-center" id="applicantTable">
                 <thead class="table-dark">
                     <tr>
-                        <th scope="col" data-column="applicant_id">Applicant ID</th>
+                        <th scope="col" data-column="candidate_id">Candidate ID</th>
                         <th scope="col" data-column="first_name">First Name</th>
                         <th scope="col" data-column="last_name">Last Name</th>
                         <th scope="col" data-column="email">Email</th>
                         <th scope="col" data-column="phone">Phone</th>
-                        <th scope="col" data-column="application_position">Position</th>
+                        <th scope="col" data-column="occupation">Position</th>
                         <th scope="col">Action</th>
                     </tr>
                 </thead>
