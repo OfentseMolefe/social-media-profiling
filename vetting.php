@@ -3,14 +3,14 @@
 session_start();
 include "db_conn.php";
 
+// Get the search key from the POST request
 $searchKey = isset($_POST['searchKey']) ? $_POST['searchKey'] : '';
 if (empty($searchKey)) {
     die("Search key is required.");
 }
 
-// Split the full name into an array of parts using a space (' ') as the delimiter
+// Split the full name into parts using a space (' ') as the delimiter
 $names = explode(' ', $searchKey);
-// Determine the number of parts in the name
 $name_parts_count = count($names);
 
 // Initialize variables for first name, middle name, and last name
@@ -23,11 +23,11 @@ if ($name_parts_count >= 1) {
     $first_name = $names[0];
 }
 if ($name_parts_count >= 2) {
-    // If there are at least two parts, the last part is considered the last name
+    // The last part is considered the last name
     $last_name = $names[$name_parts_count - 1];
 }
 if ($name_parts_count >= 3) {
-    // If there are at least three parts, the parts in between are considered the middle name
+    // Parts in between are considered the middle name
     $middle_name_parts = array_slice($names, 1, $name_parts_count - 2);
     $middle_name = implode(' ', $middle_name_parts);
 }
@@ -35,18 +35,24 @@ if ($name_parts_count >= 3) {
 // Merge the first name and middle name together with a space between them
 $merged_first_middle_name = trim($first_name . ' ' . $middle_name);
 // Concatenate first name and last name with a space between them
-$full_name = $merged_first_middle_name . '%20' . $last_name;
+$full_name = $merged_first_middle_name . ' ' . $last_name;
 
 // Check if the person exists
-$sql = "SELECT c.candidate_id FROM candidate c, person p WHERE  p.person_id = c.person_id AND p.first_name = '$merged_first_middle_name' AND p.last_name = '$last_name'";
-$result = mysqli_query($conn, $sql);
+$sql = "SELECT c.candidate_ID AS candidate_ID
+        FROM candidate c 
+        JOIN person p ON p.person_ID = c.person_ID 
+        WHERE p.last_name = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("s", $last_name);
+$stmt->execute();
+$result = $stmt->get_result();
 
-if (!$result) {
-    die("Database query failed: " . mysqli_error($conn));
+if ($result->num_rows === 0) {
+    die("Applicant not found.");
 }
 
-$row = mysqli_fetch_assoc($result);
-$applicantID = $row['$candidate_ID'] ?? null;
+$row = $result->fetch_assoc();
+$applicantID = $row['candidate_ID'];
 
 if (!$applicantID) {
     die("Applicant not found.");
@@ -77,15 +83,17 @@ if (isset($_POST['twitter'])) {
 }
 
 if (empty($checkedNetworks)) {
-    die("No social media platforms selected.");
+    $checkedNetworks = ['facebook', 'instagram', 'twitter', 'linkedin'];
 }
 
 $_SESSION['profiles'] = $checkedNetworks;
+
 // Construct the query string for social networks
 $socialNetworksQuery = implode('%2C', $checkedNetworks);
 
 // Construct the URL for the RapidAPI endpoint
-$rapidApiUrl = "https://social-links-search.p.rapidapi.com/search-social-links?query=" . $full_name . "&social_networks=" . $socialNetworksQuery;
+$full_name_encoded = urlencode($full_name);
+$rapidApiUrl = "https://social-links-search.p.rapidapi.com/search-social-links?query=" . $full_name_encoded . "&social_networks=" . $socialNetworksQuery;
 
 // Set up RapidAPI request headers
 $rapidApiHeaders = [
@@ -227,8 +235,6 @@ if (!isset($data['status']) || $data['status'] !== "OK") {
                                     <td><input type="hidden" name="social_profiles[]" value="<?php echo htmlspecialchars($platform . '|' . $username . '|' . $profile); ?>"><button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">Remove</button></td>
                                 </tr>
                         <?php
-                            } else {
-                                echo "<tr><td colspan='4'>No profiles found for " . htmlspecialchars($platform) . ".</td></tr>";
                             }
                         } ?>
                     </tbody>
@@ -236,10 +242,8 @@ if (!isset($data['status']) || $data['status'] !== "OK") {
             </div>
             <div class="text-center mt-4">
                 <?php
-                if (mysqli_num_rows($result) > 0) {
                     // Show capture button only if applicant exists
                     echo '<button type="submit" class="btn btn-primary">Complete vetting</button>';
-                }
                 ?>
             </div>
             <div class="mb-3 d-flex justify-content-between">

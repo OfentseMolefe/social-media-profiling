@@ -175,10 +175,11 @@ while ($row_count = mysqli_fetch_assoc($result_count)) {
     <div class="container">
         <div class="row height d-flex justify-content-center align-items-center">
     <div class="col-md-8">
-                <form id="searchForm" action="vetting.php" method="POST">
+        <form id="searchForm" action="vetting.php" method="POST">
             <div class="search">
                 <i class="fa fa-search"></i>
                 <input type="text" name="searchKey" id="searchKey" class="form-control" placeholder="View applicant table (Menu) or enter full name of a person to search" value="<?php echo $full_name; ?>">
+                <input type="hidden" type="candidate_id" value="">
                 <button class="btn btn-primary">Search</button>
             </div>
             
@@ -240,8 +241,7 @@ while ($row_count = mysqli_fetch_assoc($result_count)) {
                     </thead>
                     <tbody>
                         <?php
-                    include "db_conn.php";
-                    $sql = "SELECT c.candidate_ID, p.first_name, p.last_name, p.email, c.cellphone_number, c.status,  p.occupation
+                       $sql = "SELECT c.candidate_ID, p.first_name, p.last_name, p.email, c.cellphone_number, c.status,  p.occupation
                             FROM candidate c
                             JOIN person p ON c.person_ID = p.person_ID";
                         $result = mysqli_query($conn, $sql);
@@ -257,7 +257,7 @@ while ($row_count = mysqli_fetch_assoc($result_count)) {
                             <td><?php echo $row["status"]; ?></td>
 
                                 <td>
-                                <a href="view_applicant.php?identity_number=<?php echo $row["candidate_ID"]; ?>" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> Vetting</a>
+                                <a href="vetting.php?candidate_ID=<?php echo $row["candidate_ID"]; ?>" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> Vetting</a>
                                 <a href="search.php?first_name=<?php echo $row["first_name"]; ?>&last_name=<?php echo $row["last_name"]; ?>&candidate_ID=<?php echo $row["candidate_ID"]; ?>" class="btn btn-info btn-sm"><i class="fas fa-search"></i> View</a>
                                 </td>
                             </tr>
