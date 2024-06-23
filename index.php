@@ -121,7 +121,7 @@
             <div class="col-md-9 register-right">
                 <ul class="nav nav-tabs nav-justified" id="myTab" role="tablist">
                     <li class="nav-item">
-                        <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Employee</a>
+                        <a class="nav-link active" id="home-tab" data-toggle="tab" href="track_application.php" role="tab" aria-controls="home" aria-selected="true">Track Application</a>
                     </li>
                 </ul>
                 <div class="tab-content" id="myTabContent">
