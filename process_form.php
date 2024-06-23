@@ -8,10 +8,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $address = htmlspecialchars($_POST["address"]);
     $motivation = htmlspecialchars($_POST["motivation"]);
     $phone = htmlspecialchars($_POST["phone"]);
-    $occupation= htmlspecialchars($_POST["application_position"]);
+    $application_position = htmlspecialchars($_POST["application_position"]);
     $identity_number = htmlspecialchars($_POST["identity_number"]);
-    
-
+    $recruiter_ID = null; // Replace this with the actual recruiter ID you want to use
+    $captured_date = date("Y-m-d H:i:s"); // Current date for captured_date
+    $status = 'Pending'; // Example status, replace with actual value if needed
 
     // Check if identity number is unique
     $check_query = "SELECT * FROM candidate WHERE identity_number = ?";
@@ -25,22 +26,40 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit;
     }
 
+    // Begin transaction
+    mysqli_begin_transaction($conn);
 
-    // Insert data into the database using prepared statements
-    $insert_query = "INSERT INTO person (first_name, last_name, person_ID, occupation, email) VALUES (?, ?, ?, ?, ?)";
-    $stmt = $conn->prepare($insert_query);
-    $stmt->bind_param("sssss", $first_name, $last_name, $person_ID, $occupation, $email);
+    try {
+        // Insert data into the person table
+        $occupation = $application_position; // Assuming occupation is same as application position
+        $stmt_person = $conn->prepare("INSERT INTO `person` (`first_name`, `last_name`, `email`, `occupation`) VALUES (?, ?, ?, ?)");
+        $stmt_person->bind_param("ssss", $first_name, $last_name, $email, $occupation);
+        $stmt_person->execute();
 
-    if ($stmt->execute()) {
+        // Get the auto-generated person_ID
+        $person_id = mysqli_insert_id($conn);
+
+        // Insert data into the candidate table
+        $insert_candidate_query = "INSERT INTO candidate (`address`, `motivation`, `cellphone_number`, `identity_number`, `person_ID`, `recruiter_ID`, `captured_date`, `status`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        $stmt_candidate = $conn->prepare($insert_candidate_query);
+        $stmt_candidate->bind_param("ssssssss", $address, $motivation, $phone, $identity_number, $person_id, $recruiter_ID, $captured_date, $status);
+        $stmt_candidate->execute();
+
+        // Commit transaction
+        mysqli_commit($conn);
+
         // Redirect to thank you page upon successful submission
         header("Location: thank_you.php");
         exit;
-    } else {
+    } catch (Exception $e) {
+        // Rollback transaction on error
+        mysqli_rollback($conn);
         echo "<script>alert('Error: Registration failed.');</script>";
         echo "<script>window.location.href = 'index.php';</script>";
     }
 
-    $stmt->close();
+    $stmt_person->close();
+    $stmt_candidate->close();
 } else {
     echo "<script>alert('Error: Form submission method is not POST.');</script>";
     echo "<script>window.location.href = 'index.php';</script>";
