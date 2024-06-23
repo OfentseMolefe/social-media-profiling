@@ -1,22 +1,39 @@
 <?php
 include "db_conn.php";
 session_start();
-//Get the Details using a applicant_id from the session
-$applicant_id = $_SESSION['candidate_ID']; // check this session where it is populated
-$applicant_id = 21;
+
+// Check if the applicant_id session variable is set
+if (!isset($_SESSION['applicant_id'])) {
+    die("Applicant ID not found in session.");
+}
+$socialProfiles;
+//get the links
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['social_profiles']) && is_array($_POST['social_profiles'])) {
+        $_SESSION['social_profiles'] = $_POST['social_profiles'];
+        // Get the array of social profiles from the form data
+        $socialProfiles = $_POST['social_profiles'];
+    }
+}
+
+$applicant_id = $_SESSION['applicant_id'];
 $hr_onDuty = $_SESSION['username'];
-
 $recruiterID = $_SESSION['recruiterID'];
-//$recruiterID =1025;
-//Select from the Application table
-
-$stmt = $conn->prepare("SELECT c.candidate_ID,p.first_name,p.last_name,p.email,c.cellphone_number,p.occupation
-                        FROM candidate c , person p WHERE p.person_ID = c.person_ID AND c.candidate_ID = ?");
+//$applicant_id = 22;
+// Retrieve candidate details from the database
+$stmt = $conn->prepare("SELECT c.candidate_ID, p.first_name, p.last_name, p.email, c.cellphone_number, p.occupation
+                        FROM candidate c 
+                        JOIN person p ON p.person_ID = c.person_ID 
+                        WHERE c.candidate_ID = ?");
 $stmt->bind_param("i", $applicant_id);
 $stmt->execute();
 $result = $stmt->get_result();
-// Retrieve candidate details from URL parameters
 $row = $result->fetch_assoc();
+
+if (!$row) {
+    die("Applicant details not found.");
+}
+
 $candidate_ID = $row["candidate_ID"];
 $first_name = $row["first_name"];
 $last_name = $row["last_name"];
@@ -32,7 +49,6 @@ use Symfony\Component\Mime\Email;
 
 function send_email($to, $subject, $body)
 {
-    // Configure the Symfony Mailer with Gmail SMTP
     $transport = Transport::fromDsn('smtp://swp316dproject@gmail.com:uobgvdxwwevaiakn@smtp.gmail.com:587?encryption=tls');
     $mailer = new Mailer($transport);
 
@@ -42,99 +58,133 @@ function send_email($to, $subject, $body)
         ->subject($subject)
         ->html($body);
 
-    // JavaScript to show a confirmation dialog
-    $confirmationScript = "<script>
-        var confirmation = confirm('Are you sure you want to send this email?');
-        if (confirmation) {
-            window.location.href = 'search.php';
-        }
-    </script>";
-
     try {
-        // Send the email
         $mailer->send($email);
-
-        // Return success message with the confirmation script
-        return 'Message has been sent' . $confirmationScript;
+        return 'Message has been sent';
     } catch (Exception $e) {
-        // Return error message with the confirmation script
-        return "Message could not be sent. Mailer Error: {$e->getMessage()}" . $confirmationScript;
+        return "Message could not be sent. Mailer Error: {$e->getMessage()}";
     }
 }
 
-// Check if "ACCEPT" button is clicked
-if (isset($_POST['accept'])) {
-    $status = 'Accepted';
-    $comment = $_POST['recruiterComment'];
-    $subject = 'Application Accepted';
+// Check if the form is submitted
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+   
 
-    // Manually entered interview details
-    $interview_date = isset($_POST['interview_date']) ? $_POST['interview_date'] : '';
-    $interview_time = isset($_POST['interview_time']) ? $_POST['interview_time'] : '';
+    // Check if "ACCEPT" button is clicked
+    if (isset($_GET['accept'])) {
+        $status = 'Accepted';
+        $subject = 'Application Accepted';
+        $interview_date = $_POST['interview_date'] ?? '';
+        $interview_time = $_POST['interview_time'] ?? '';
+        $comment = $_POST['recruiterComment'] ?? 'No comment';
+        $body = "Dear $first_name $last_name,<br><br>
+        I hope this email finds you well.<br><br>
+        I am writing to invite you for an interview for the position of <b>$application_position</b> at Tshwane University of Technology. We were impressed by your application and believe that you would be a great fit for our team.<br><br>
+        The interview will be conducted in person and will take approximately <b>30 - 45 minutes</b>. We will discuss your work experience, skills, and qualifications in-depth and provide you with more information about the position and our company.<br><br>
+        <strong>Interview Details:</strong><br>
+        Date: $interview_date<br>
+        Time: $interview_time<br>
+        Location:
+        <ul style='list-style-type: none; padding-left: 20px;'>
+            <li>Building 20-212</li>
+            <li>Block K</li>
+            <li>2 Aubrey Matlakala St</li>
+            <li>Soshanguve - K</li>
+            <li>Soshanguve</li>
+            <li>0152</li>
+        </ul>
+        <br>
+        Thank you for your interest in our company, and we look forward to meeting you soon.<br><br>
+        Sincerely,<br>
+        $hr_onDuty (From HR Department)";
 
-    // Prepare email body with interview details
-    $body = "Dear $first_name $last_name,<br><br>
-    I hope this email finds you well.<br><br>
-    I am writing to invite you for an interview for the position of <b>$application_position</b> at Tshwane University of Technology. We were impressed by your application and believe that you would be a great fit for our team.<br><br>
+        echo send_email($email, $subject, $body);
 
-    The interview will be conducted in person and will take approximately <b>30 - 45 minutes</b>. We will discuss your work experience, skills, and qualifications in-depth and provide you with more information about the position and our company.<br><br>
+        // Update candidate table for "ACCEPT"
+        $sqlCandidate = "UPDATE candidate 
+                         SET captured_date = NOW(), status = ?, recruiter_ID = ?, comment = ?
+                         WHERE candidate_ID = ?";
+        $stmtCandidate = $conn->prepare($sqlCandidate);
+        $stmtCandidate->bind_param("sisi", $status, $recruiterID, $comment, $applicant_id);
+        $stmtCandidate->execute();
+        $stmtCandidate->close();
 
-    <strong>Interview Details:</strong><br>
-    Date: $interview_date<br>
-    Time: $interview_time<br>
-    Location:
-    <ul style='list-style-type: none; padding-left: 20px;'>
-        <li>Building 20-212</li>
-        <li>Block K</li>
-        <li>2 Aubrey Matlakala St</li>
-        <li>Soshanguve - K</li>
-        <li>Soshanguve</li>
-        <li>0152</li>
-    </ul>
-    <br>
-    Thank you for your interest in our company, and we look forward to meeting you soon.<br><br>
+        // Add the links to the database
+        $sql2 = "INSERT INTO SocialMediaProfile (candidate_ID, recruiter_ID) VALUES ('$applicant_id', '$recruiterID')";
 
-    Sincerely,<br>
-    $hr_onDuty (From HR Department)";
+        if (mysqli_query($conn, $sql2)) {
+            $socialMediaID = mysqli_insert_id($conn);
+            $_SESSION['socialMediaID'] = $socialMediaID;
+            echo "New record inserted into SocialMediaProfile successfully. Social Media ID: $socialMediaID<br>";
+        } else {
+            echo "Error inserting into SocialMediaProfile: " . mysqli_error($conn) . "<br>";
+        }
 
-    echo send_email($email, $subject, $body);
+        // Process each social profile
+        //get the links from the session
+        $socialProfiles = $_SESSION['social_profiles'];
 
-    // Update candidate table for "ACCEPT"
-    $sqlCandidate = "UPDATE candidate 
-                     SET captured_date = NOW(), status = ?, recruiter_ID = ?, comment = ?
-                     WHERE candidate_ID = ?";
-    $stmtCandidate = $conn->prepare($sqlCandidate);
-    $stmtCandidate->bind_param("sisi", $status, $recruiterID, $comment, $applicant_id);
-    $stmtCandidate->execute();
+        foreach ($socialProfiles as $profileData) {
+            $profileParts = explode('|', $profileData);
+            $platform = $profileParts[0];
+            $username = $profileParts[1];
+            $profileURL = $profileParts[2];
 
-    $stmtCandidate->close();
-}
+            switch ($platform) {
+                case 'facebook':
+                    $tableName = 'facebook_profile';
+                    break;
+                case 'instagram':
+                    $tableName = 'instagram_profile';
+                    break;
+                case 'twitter':
+                    $tableName = 'twitter_profile';
+                    break;
+                case 'linkedin':
+                    $tableName = 'linkedin_profile';
+                    break;
+                default:
+                    echo "Unknown platform: $platform<br>";
+                    break;
+            }
 
-// Check if "DECLINE" button is clicked
-if (isset($_POST['decline'])) {
-    $status = 'Declined';
-    $comment = $_POST['recruiterComment'];
-    $subject = 'Application Declined';
+            $sql = "INSERT INTO $tableName (socialMediaID, user_name, profile_url) VALUES ('$socialMediaID', '$username', '$profileURL')";
+            if (mysqli_query($conn, $sql)) {
+                echo "Profile captured successfully: $username ($platform)<br>";
+            } else {
+                echo "Error inserting into $tableName: " . mysqli_error($conn) . "<br>";
+            }
+        }
+    }
 
-    $body = "Dear $first_name $last_name,<br><br>
-    Thank you for your interest in the position at Jokers Organization. After careful consideration, we regret to inform you that we have decided to move forward with other candidates who more closely match our needs at this time.<br><br>
-    We were impressed with your qualifications and encourage you to apply for future openings that align with your skills and experiences.<br><br>
-    We wish you all the best in your job search and future professional endeavors.<br><br>
-    Regards,<br>
-    Jokers Organization";
-    echo send_email($email, $subject, $body);
+    // Check if "DECLINE" button is clicked
+    if (isset($_GET['decline'])) {
+        $status = 'Declined';
+        $subject = 'Application Declined';
 
-    // Update candidate table for "DECLINE"
-    $sqlCandidate = "UPDATE candidate 
-                     SET captured_date = NOW(), status = ?, recruiter_ID = ?, comment = ?
-                     WHERE candidate_ID = ?";
-    $stmtCandidate = $conn->prepare($sqlCandidate);
-    $stmtCandidate->bind_param("sisi", $status, $recruiterID, $comment, $applicant_id);
-    $stmtCandidate->execute();
+        $body = "Dear $first_name $last_name,<br><br>
+        Thank you for your interest in the position at Jokers Organization. After careful consideration, we regret to inform you that we have decided to move forward with other candidates who more closely match our needs at this time.<br><br>
+        We were impressed with your qualifications and encourage you to apply for future openings that align with your skills and experiences.<br><br>
+        We wish you all the best in your job search and future professional endeavors.<br><br>
+        Regards,<br>
+        Jokers Organization";
 
-    $stmtCandidate->close();
+        echo send_email($email, $subject, $body);
+
+        $sqlCandidate = "UPDATE candidate 
+                         SET captured_date = NOW(), status = ?, recruiter_ID = ?, comment = ?
+                         WHERE candidate_ID = ?";
+        $stmtCandidate = $conn->prepare($sqlCandidate);
+        $stmtCandidate->bind_param("sisi", $status, $recruiterID, $comment, $applicant_id);
+        $stmtCandidate->execute();
+        $stmtCandidate->close();
+    }
+
+    //redirect back to search page
+    
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -228,9 +278,9 @@ if (isset($_POST['decline'])) {
                         <p class="mb-2">Cell Number: <?php echo htmlspecialchars($cell_no); ?></p>
                         <div class="d-flex justify-content-center mt-3">
 
-                            <form id="submitEmail" method="post">
+                            <form id="submitEmail" method="get">
                                 <div class="form-group">
-                                    <textarea class="form-control mb-3" id="recruiterComment" placeholder="Leave a comment" name="recruiterComment" rows="3" style="border: 1px solid #ced4da; padding: .375rem .75rem;"></textarea>
+                                    <textarea class="form-control mb-3" name="recruiterComment" id="recruiterComment" placeholder="Leave a comment" name="recruiterComment" rows="3" style="border: 1px solid #ced4da; padding: .375rem .75rem;"></textarea>
                                     <div class="row mb-4">
                                         <label class="col-12">
                                             <u><strong>Interview Details</strong></u>
