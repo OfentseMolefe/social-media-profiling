@@ -24,25 +24,35 @@ $completed_count = 0;
 
 //$sql_count = "SELECT status_id, COUNT(*) as count FROM applicant GROUP BY status_id";
 
- $sql_count = "SELECT c.status, c.candidate_ID, p.first_name, p.last_name, p.email, c.cellphone_number, p.occupation, count(*) as count
+   $sql_count = "SELECT c.status, c.candidate_ID, p.first_name, p.last_name, p.email, c.cellphone_number, p.occupation, count(*) as count
    FROM candidate c
    JOIN person p ON c.person_ID = p.person_ID
    GROUP BY c.status,c.candidate_ID, p.first_name, p.last_name, p.email, c.cellphone_number, p.occupation ";
    
+   //dynamically fetch rows according to status
+
+
+
         // Combined SQL query
         $sql = "
-        SELECT 
-            COUNT(*) as total, 
-            COUNT(CASE WHEN status = 'pending' THEN 1 END) as pending_total,
-            COUNT(CASE WHEN status = 'in_progress' THEN 1 END) as in_progress_total
-        FROM 
-            Candidate
-        ";
+    SELECT 
+        COUNT(*) as total, 
+        SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending_total,
+        SUM(CASE WHEN status = 'in_progress' THEN 1 ELSE 0 END) as in_progress_total,
+        SUM(CASE WHEN status = 'accepted' THEN 1 ELSE 0 END) as accepted_total,
+        SUM(CASE WHEN status = 'declined' THEN 1 ELSE 0 END) as declined_total
+    FROM 
+        Candidate
+";
 
-        // Initialize the variables
-        $total_candidates = 0;
-        $pending_total = 0;
-        $in_progress_count = 0;
+        // Declare the variables
+        $total_candidates;
+        $pending_total;
+        $in_progress_count;;
+
+        $accepted_count;
+        $declined_count;
+        $completed_count;
 
         // Execute the query
         if ($result = $conn->query($sql)) {
@@ -51,7 +61,9 @@ $completed_count = 0;
             $total_candidates = $row['total'];
             $pending_total = $row['pending_total'];
             $in_progress_count = $row['in_progress_total'];
-        }
+            $declined_count = $row['declined_total'];
+            $accepted_count = $row['accepted_total'];
+         }
         // Free the result set
         $result->free();
         }
@@ -87,29 +99,50 @@ while ($row_count = mysqli_fetch_assoc($result_count)) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmF/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="assets/css/searchpage.css">
     <style>
-        .status-circle {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1rem;
-            margin-right: 10px;
-        }
-        .accepted {
-            background-color: green;
-        }
-        .declined {
-            background-color: red;
-        }
-        .in-progress {
-            background-color: orange;
-        }
-        .completed {
-            background-color: blue;
-        }
+.status-item {
+    display: flex;
+    align-items: center;
+}
+
+.status-button {
+    width: 60px; /* Adjust width to fit your content */
+    height: 60px; /* Adjust height to fit your content */
+    border-radius: 50%; /* Makes the button circular */
+    border: none;
+    font-size: 16px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    margin-right: 10px; /* Adjust spacing between button and name */
+}
+
+.status-name {
+    font-size: 14px; /* Adjust font size of status names */
+    white-space: nowrap; /* Prevents wrapping of long names */
+}
+
+.accepted { background-color: #28a745; color: white; }
+.declined { background-color: #dc3545; color: white; }
+.in-progress { background-color: #ffc107; color: black; }
+.completed { background-color: #007bff; color: white; }
+.yellow-circle { background-color: yellow; color: black; }
+
+.container {
+    margin-top: 20px;
+}
+
+.row {
+    display: flex;
+    justify-content: space-between;
+}
+
+.col {
+    flex: 1;
+}
+
+
 
         
         .table-wrapper {
@@ -234,23 +267,42 @@ while ($row_count = mysqli_fetch_assoc($result_count)) {
         </form>
     </div>
     <div class="container">
-        <div class="row">
-            <div class="col">
-                <div class="status-circle accepted"><?php echo  $accepted_count; ?></div> Accepted
-            </div>
-            <div class="col">
-                <div class="status-circle declined"><?php  echo $declined_count; ?></div> Declined
-            </div>
-            <div class="col">
-                <div class="status-circle in-progress"><?php echo $pending_total; ?></div> In Progress
-            </div>
-            <div class="col">
-                <div class="status-circle completed"><?php  echo $completed_count; ?></div> Vetted
-            </div>
-            <div class="col">
-                <div class="status-circle  yellow-circle"><?php echo $total_candidates; ?></div> Total Candidates
+    <div class="row">
+        <div class="col">
+            <div class="status-item">
+                <button class="status-button accepted"><?php echo $accepted_count; ?></button>
+                <span class="status-name">Accepted</span>
             </div>
         </div>
+        <div class="col">
+            <div class="status-item">
+                <button class="status-button declined"><?php echo $declined_count; ?></button>
+                <span class="status-name">Declined</span>
+            </div>
+        </div>
+        <div class="col">
+            <div class="status-item">
+                <button class="status-button in-progress"><?php echo $pending_total; ?></button>
+                <span class="status-name">In Progress</span>
+            </div>
+        </div>
+        <div class="col">
+            <div class="status-item">
+                <button class="status-button completed"><?php echo $completed_count; ?></button>
+                <span class="status-name">Vetted</span>
+            </div>
+        </div>
+        <div class="col">
+            <div class="status-item">
+                <button class="status-button yellow-circle"><?php echo $total_candidates; ?></button>
+                <span class="status-name">Total Candidates</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
         <br>
 
             <!-- Add the Table for applicants -->
