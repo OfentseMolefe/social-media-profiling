@@ -13,6 +13,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $recruiter_ID = null; // Replace this with the actual recruiter ID you want to use
     $captured_date = null; // Current date for captured_date
     $status = 'Pending'; // Example status, replace with actual value if needed
+    $profilePicture = $_FILES['profile_picture'];
 
     // Check if identity number is unique
     $check_query = "SELECT * FROM candidate WHERE identity_number = ?";
@@ -22,6 +23,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $result = $stmt->get_result();
     if ($result->num_rows > 0) {
         echo "<script>alert('Error: Identity number already exists.');</script>";
+        echo "<script>window.location.href = 'index.php';</script>";
+        exit;
+    }
+
+    // Check if file was uploaded without errors
+    if ($profilePicture['error'] == 0) {
+        $fileName = $profilePicture['name'];
+        $fileTmpName = $profilePicture['tmp_name'];
+        $fileSize = $profilePicture['size'];
+        $fileType = $profilePicture['type'];
+        $fileExt = strtolower(end(explode('.', $fileName)));
+        $allowed = array('jpg', 'jpeg', 'png', 'gif');
+
+        if (in_array($fileExt, $allowed)) {
+            // Read the image file into a binary string
+            $imageData = file_get_contents($fileTmpName);
+        } else {
+            echo "<script>alert('Invalid file type. Only JPG, JPEG, PNG, and GIF files are allowed.');</script>";
+            echo "<script>window.location.href = 'index.php';</script>";
+            exit;
+        }
+    } else {
+        echo "<script>alert('Error uploading file.');</script>";
         echo "<script>window.location.href = 'index.php';</script>";
         exit;
     }
@@ -40,9 +64,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $person_id = mysqli_insert_id($conn);
 
         // Insert data into the candidate table
-        $insert_candidate_query = "INSERT INTO candidate (`address`, `motivation`, `cellphone_number`, `identity_number`, `person_ID`, `recruiter_ID`, `captured_date`, `status`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        $insert_candidate_query = "INSERT INTO candidate (`address`, `motivation`, `cellphone_number`, `identity_number`, `person_ID`, `recruiter_ID`, `captured_date`, `status`, `profile_picture`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt_candidate = $conn->prepare($insert_candidate_query);
-        $stmt_candidate->bind_param("ssssssss", $address, $motivation, $phone, $identity_number, $person_id, $recruiter_ID, $captured_date, $status);
+        $stmt_candidate->bind_param("sssssssss", $address, $motivation, $phone, $identity_number, $person_id, $recruiter_ID, $captured_date, $status, $imageData);
         $stmt_candidate->execute();
 
         // Commit transaction

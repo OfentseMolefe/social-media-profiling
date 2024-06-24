@@ -130,20 +130,20 @@
         </button>
 
         <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
-           
+
             <div class="form-inline my-2 my-lg-0">
-            <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-                <li class="nav-item active">
-                    <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">About</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Contact</a>
-                </li>
-            </ul> 
-    </div>
+                <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Contact</a>
+                    </li>
+                </ul>
+            </div>
         </div>
     </nav>
     <div class="container register">
@@ -206,6 +206,9 @@
 
                                     <div class="form-group">
                                         <input type="text" class="form-control" name="identity_number" placeholder="Enter Your Identity number *" required />
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="file" class="form-control" id="profile_picture" name="profile_picture" accept="image/*" placeholder="Upload photo">
                                     </div>
                                     <input type="submit" class="btn btn-primary btn-lg" value="APPLY" />
                                 </div>
