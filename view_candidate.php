@@ -231,7 +231,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
       echo '<path d="M7.5 1a6.5 6.5 0 1 0 6.5 6.5A6.5 6.5 0 0 0 7.5 1zm0 1A5.5 5.5 0 1 1 2 7.5 5.5 5.5 0 0 1 7.5 2z"/>';
       echo '</svg>';
       echo '<h2>Success</h2>';
-      echo '<p style="color: red;"> Email sent successfully.</p>';
+      echo '<p>Social media profiles have been successfully captured.</p>';
+      echo '<p> Email sent Successfully</p>';
       echo '</div>';
 
       // Redirect back to search page after delay
