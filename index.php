@@ -35,6 +35,13 @@
         }
     </style>
     <script>
+        // Spinner function
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('captureForm').addEventListener('submit', function() {
+                document.getElementById('spinner-overlay').style.display = 'flex';
+            });
+        });
+
         function validateForm() {
             var address = document.forms["registrationForm"]["address"].value;
             var motivation = document.forms["registrationForm"]["motivation"].value;
@@ -93,16 +100,18 @@
             return true;
         }
 
-        function handleSubmit(event) {
-            if (validateForm()) {
-                document.getElementById('spinner-overlay').style.display = 'flex';
-            } else {
-                event.preventDefault();
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            document.getElementById('captureForm').addEventListener('submit', handleSubmit);
+        $(document).ready(function() {
+            $('#application_position').change(function() {
+                if ($(this).val() === 'Other') {
+                    $('#other_position_div').show();
+                    $('#other_position').attr('required', true);
+                    $('#other_position').focus();
+                    $(this).replaceWith($('#other_position'));
+                } else {
+                    $('#other_position_div').hide();
+                    $('#other_position').removeAttr('required');
+                }
+            });
         });
     </script>
 </head>
@@ -113,11 +122,36 @@
             <span class="visually-hidden">Loading...</span>
         </div>
     </div>
+    <!--Add the Nav Bar-->
+    <nav class="navbar navbar-expand-lg navbar-light bg-primary">
+        <a class="navbar-brand" href="#">Navbar</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+           
+            <div class="form-inline my-2 my-lg-0">
+            <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                <li class="nav-item active">
+                    <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">About</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Contact</a>
+                </li>
+            </ul> 
+    </div>
+        </div>
+    </nav>
     <div class="container register">
         <div class="row">
             <div class="col-md-3 register-left">
                 <img src="https://image.ibb.co/n7oTvU/logo_white.png" alt="" />
                 <h3>Welcome</h3>
+                <p>You are more than welcome to log in</p>
                 <form action="index2.php">
                     <input type="submit" value="Login" class="btn btn-primary btn-lg" /><br />
                 </form>
@@ -125,13 +159,13 @@
             <div class="col-md-9 register-right">
                 <ul class="nav nav-tabs nav-justified" id="myTab" role="tablist">
                     <li class="nav-item">
-                        <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Employee</a>
+                        <a class="nav-link active" id="home-tab" data-toggle="tab" href="track_application.php" role="tab" aria-controls="home" aria-selected="true">Track Application</a>
                     </li>
                 </ul>
                 <div class="tab-content" id="myTabContent">
                     <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
                         <h3 class="register-heading">Application form</h3>
-                        <form id="captureForm" action="process_form.php" method="POST" name="registrationForm">
+                        <form id="captureForm" action="process_form.php" method="POST" name="registrationForm" onsubmit="return validateForm()">
                             <div class="row register-form">
                                 <div class="col-md-6">
                                     <div class="form-group">
@@ -154,14 +188,22 @@
                                     <div class="form-group">
                                         <input type="text" class="form-control" name="phone" minlength="10" maxlength="10" placeholder="Your Phone *" required />
                                     </div>
+
                                     <div class="form-group">
-                                        <select class="form-control" name="application_position" required>
+                                        <select class="form-control" name="application_position" id="application_position" required>
                                             <option class="hidden" selected disabled>Please select your Application position</option>
                                             <option value="Human Resource">Human Resource</option>
                                             <option value="Technician">Technician</option>
                                             <option value="Lecturer">Lecturer</option>
+                                            <option value="General Worker">General Worker</option>
+                                            <option value="Security">Security</option>
+                                            <option value="Other">Other</option>
                                         </select>
                                     </div>
+                                    <div class="form-group" id="other_position_div" style="display: none;">
+                                        <input type="text" class="form-control" name="other_position" id="other_position" placeholder="Please specify your Application position">
+                                    </div>
+
                                     <div class="form-group">
                                         <input type="text" class="form-control" name="identity_number" placeholder="Enter Your Identity number *" required />
                                     </div>

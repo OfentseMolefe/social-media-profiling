@@ -67,24 +67,9 @@ $completed_count = 0;
         $result->free();
         }
    
-
+        $completed_count = $accepted_count + $declined_count;
  
-$result_count = mysqli_query($conn, $sql_count);
-while ($row_count = mysqli_fetch_assoc($result_count)) {
-    if ($row_count['status'] == 'accepted') {
-        $accepted_count = $row_count['count'];
-    } elseif ($row_count['status'] == 'declined') {
-        $declined_count = $row_count['count'];
-    } elseif ($row_count['status'] == 'in_progress') {
-        $in_progress_count = $row_count['count'];
-    } elseif ($row_count['status'] == 'completed') {
-        $completed_count = $row_count['count'];
-    } 
-    
 
-    $completed_count = $accepted_count + $declined_count;
-
-}
 
 
 ?>
@@ -302,9 +287,6 @@ while ($row_count = mysqli_fetch_assoc($result_count)) {
         </div>
     </div>
 </div>
-
-
-
         <br>
 
             <!-- Add the Table for applicants -->
