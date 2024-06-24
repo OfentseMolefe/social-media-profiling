@@ -165,7 +165,7 @@
                 <div class="tab-content" id="myTabContent">
                     <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
                         <h3 class="register-heading">Application form</h3>
-                        <form id="captureForm" action="process_form.php" method="POST" name="registrationForm" onsubmit="return validateForm()">
+                        <form id="captureForm" action="process_form.php" method="POST" name="registrationForm" onsubmit="return validateForm()"  enctype="multipart/form-data">
                             <div class="row register-form">
                                 <div class="col-md-6">
                                     <div class="form-group">
