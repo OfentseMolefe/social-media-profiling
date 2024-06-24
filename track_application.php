@@ -29,7 +29,7 @@
                 <input type="text" class="form-control" id="identity_number" name="identity_number" required>
             </div>
             <button type="submit" class="btn btn-primary" id="trackButton">Track Application</button>
-            <a href="index.php" class="btn btn-secondary" id="backButton" style="display: none;">Back</a>
+            <a href="index.php" class="btn btn-secondary" id="backButton">Back</a>
         </form>
         <br>
         <div id="application-details">
@@ -71,18 +71,27 @@
                         echo '</div>';
                     }
                 } else {
-                    echo "<p class='error'>No candidate found for the identity number: " . $id_number . "</p>";
+                    echo "<p class='error'>No candidate found for the identity number: " . $identity_number . "</p>";
                 }
 
                 // Close statement and database connection
                 $stmt->close();
                 $conn->close();
 
+                echo '<script>
+                    document.getElementById("backButton").style.display = "inline-block";
+                </script>';
             } else {
                 echo "<p class='error'>Please provide an identity number to retrieve candidate details.</p>";
             }
             ?>
         </div>
     </div>
+
+    <script>
+        document.getElementById('trackForm').addEventListener('submit', function() {
+            document.getElementById('backButton').style.display = 'inline-block';
+        });
+    </script>
 </body>
 </html>
