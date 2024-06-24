@@ -385,13 +385,6 @@ while ($row_count = mysqli_fetch_assoc($result_count)) {
                 event.preventDefault();
                 return;
             }
-
-            if (!linkedin && !facebook && !instagram && !twitter) {
-                alert('Please select at least one social media platform to search.');
-                event.preventDefault();
-                return;
-            }
-
             document.getElementById('spinner-overlay').style.display = 'flex';
         });
     </script>
