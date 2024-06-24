@@ -2,24 +2,10 @@
 include "db_conn.php";
 session_start();
 
-// Check if the applicant_id session variable is set
-if (!isset($_SESSION['applicant_id'])) {
-    die("Applicant ID not found in session.");
-}
-$socialProfiles;
-//get the links
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['social_profiles']) && is_array($_POST['social_profiles'])) {
-        $_SESSION['social_profiles'] = $_POST['social_profiles'];
-        // Get the array of social profiles from the form data
-        $socialProfiles = $_POST['social_profiles'];
-    }
-}
-
 $applicant_id = $_SESSION['applicant_id'];
 $hr_onDuty = $_SESSION['username'];
 $recruiterID = $_SESSION['recruiterID'];
-//$applicant_id = 22;
+
 // Retrieve candidate details from the database
 $stmt = $conn->prepare("SELECT c.candidate_ID, p.first_name, p.last_name, p.email, c.cellphone_number, p.occupation
                         FROM candidate c 
@@ -40,6 +26,65 @@ $last_name = $row["last_name"];
 $email = $row["email"];
 $cell_no = $row["cellphone_number"];
 $application_position = $row["occupation"];
+
+//Get the Array of socials
+// Initialize social profiles array
+$socialProfiles = [];
+
+// Retrieve social profiles if form is submitted
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['social_profiles']) && is_array($_POST['social_profiles'])) {
+        // Get the array of social profiles from the form data
+        $socialProfiles = $_POST['social_profiles'];
+        // Add the links to the database
+        $sql2 = "INSERT INTO SocialMediaProfile (candidate_ID, recruiter_ID) VALUES ('$applicant_id', '$recruiterID')";
+        if (mysqli_query($conn, $sql2)) {
+            $socialMediaID = mysqli_insert_id($conn);
+            $_SESSION['socialMediaID'] = $socialMediaID;
+            echo "New record inserted into SocialMediaProfile successfully. Social Media ID: $socialMediaID<br>";
+        } else {
+            echo "Error inserting into SocialMediaProfile: " . mysqli_error($conn) . "<br>";
+        }
+
+        // Process each social profile
+        //get the links from the session
+     
+
+        foreach ($socialProfiles as $profileData) {
+            $profileParts = explode('|', $profileData);
+            $platform = $profileParts[0];
+            $username = $profileParts[1];
+            $profileURL = $profileParts[2];
+
+            switch ($platform) {
+                case 'facebook':
+                    $tableName = 'facebook_profile';
+                    break;
+                case 'instagram':
+                    $tableName = 'instagram_profile';
+                    break;
+                case 'twitter':
+                    $tableName = 'twitter_profile';
+                    break;
+                case 'linkedin':
+                    $tableName = 'linkedin_profile';
+                    break;
+                default:
+                    echo "Unknown platform: $platform<br>";
+                    break;
+            }
+
+            $sql = "INSERT INTO $tableName (socialMediaID, user_name, profile_url) VALUES ('$socialMediaID', '$username', '$profileURL')";
+            if (mysqli_query($conn, $sql)) {
+                echo "Profile captured successfully: $username ($platform)<br>";
+            } else {
+                echo "Error inserting into $tableName: " . mysqli_error($conn) . "<br>";
+            }
+        }
+    }
+}
+
+
 
 require 'vendor/autoload.php';
 
@@ -74,9 +119,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if (isset($_GET['accept'])) {
         $status = 'Accepted';
         $subject = 'Application Accepted';
-        $interview_date = $_POST['interview_date'] ?? '';
-        $interview_time = $_POST['interview_time'] ?? '';
-        $comment = $_POST['recruiterComment'] ?? 'No comment';
+        $interview_date = $_GET['interview_date'] ?? '';
+        $interview_time = $_GET['interview_time'] ?? '';
+        $comment = $_GET['recruiterComment'] ?? 'No comment';
         $body = "Dear $first_name $last_name,<br><br>
         I hope this email finds you well.<br><br>
         I am writing to invite you for an interview for the position of <b>$application_position</b> at Tshwane University of Technology. We were impressed by your application and believe that you would be a great fit for our team.<br><br>
@@ -108,60 +153,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $stmtCandidate->bind_param("sisi", $status, $recruiterID, $comment, $applicant_id);
         $stmtCandidate->execute();
         $stmtCandidate->close();
-
-        // Add the links to the database
-        $sql2 = "INSERT INTO SocialMediaProfile (candidate_ID, recruiter_ID) VALUES ('$applicant_id', '$recruiterID')";
-
-        if (mysqli_query($conn, $sql2)) {
-            $socialMediaID = mysqli_insert_id($conn);
-            $_SESSION['socialMediaID'] = $socialMediaID;
-            echo "New record inserted into SocialMediaProfile successfully. Social Media ID: $socialMediaID<br>";
-        } else {
-            echo "Error inserting into SocialMediaProfile: " . mysqli_error($conn) . "<br>";
-        }
-
-        // Process each social profile
-        //get the links from the session
-        $socialProfiles = $_SESSION['social_profiles'];
-
-        foreach ($socialProfiles as $profileData) {
-            $profileParts = explode('|', $profileData);
-            $platform = $profileParts[0];
-            $username = $profileParts[1];
-            $profileURL = $profileParts[2];
-
-            switch ($platform) {
-                case 'facebook':
-                    $tableName = 'facebook_profile';
-                    break;
-                case 'instagram':
-                    $tableName = 'instagram_profile';
-                    break;
-                case 'twitter':
-                    $tableName = 'twitter_profile';
-                    break;
-                case 'linkedin':
-                    $tableName = 'linkedin_profile';
-                    break;
-                default:
-                    echo "Unknown platform: $platform<br>";
-                    break;
-            }
-
-            $sql = "INSERT INTO $tableName (socialMediaID, user_name, profile_url) VALUES ('$socialMediaID', '$username', '$profileURL')";
-            if (mysqli_query($conn, $sql)) {
-                echo "Profile captured successfully: $username ($platform)<br>";
-            } else {
-                echo "Error inserting into $tableName: " . mysqli_error($conn) . "<br>";
-            }
-        }
+        
+             // Success alert
+             echo '<div style="text-align: center; margin-top: 50px;">';
+             echo '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="green" class="bi bi-check-circle" viewBox="0 0 16 16">';
+             echo '<path d="M15.854 4.146a.5.5 0 0 0-.708-.708l-8 8a.5.5 0 0 0 .708.708l8-8z"/>';
+             echo '<path d="M7.5 10.5L3.5 6.5a.5.5 0 0 0-.708.708l4 4a.5.5 0 0 0 .708 0l9-9a.5.5 0 0 0-.708-.708l-8.5 8.5z"/>';
+             echo '<path d="M7.5 1a6.5 6.5 0 1 0 6.5 6.5A6.5 6.5 0 0 0 7.5 1zm0 1A5.5 5.5 0 1 1 2 7.5 5.5 5.5 0 0 1 7.5 2z"/>';
+             echo '</svg>';
+             echo '<h2>Success</h2>';
+             echo '<p>Social media profiles have been successfully captured.</p>';
+             echo '</div>';
+ 
+             // Redirect back to search page after delay
+             header("refresh:5;url=search.php");
+             exit();
     }
 
     // Check if "DECLINE" button is clicked
     if (isset($_GET['decline'])) {
         $status = 'Declined';
         $subject = 'Application Declined';
-
+        $comment = $_GET['recruiterComment'] ?? 'No comment';
         $body = "Dear $first_name $last_name,<br><br>
         Thank you for your interest in the position at Jokers Organization. After careful consideration, we regret to inform you that we have decided to move forward with other candidates who more closely match our needs at this time.<br><br>
         We were impressed with your qualifications and encourage you to apply for future openings that align with your skills and experiences.<br><br>
@@ -178,6 +191,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $stmtCandidate->bind_param("sisi", $status, $recruiterID, $comment, $applicant_id);
         $stmtCandidate->execute();
         $stmtCandidate->close();
+           //Add  the delete function to remove the add links
+           
+           // Success alert
+           echo '<div style="text-align: center; margin-top: 50px;">';
+           echo '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="green" class="bi bi-check-circle" viewBox="0 0 16 16">';
+           echo '<path d="M15.854 4.146a.5.5 0 0 0-.708-.708l-8 8a.5.5 0 0 0 .708.708l8-8z"/>';
+           echo '<path d="M7.5 10.5L3.5 6.5a.5.5 0 0 0-.708.708l4 4a.5.5 0 0 0 .708 0l9-9a.5.5 0 0 0-.708-.708l-8.5 8.5z"/>';
+           echo '<path d="M7.5 1a6.5 6.5 0 1 0 6.5 6.5A6.5 6.5 0 0 0 7.5 1zm0 1A5.5 5.5 0 1 1 2 7.5 5.5 5.5 0 0 1 7.5 2z"/>';
+           echo '</svg>';
+           echo '<h2>Success</h2>';
+           echo '<p>Social media profiles have been successfully captured.</p>';
+           echo '</div>';
+
+           // Redirect back to search page after delay
+           header("refresh:5;url=search.php");
+           exit();
     }
 
     //redirect back to search page
@@ -276,9 +305,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                         <h2 class="mt-3"><?php echo htmlspecialchars($first_name); ?> <?php echo htmlspecialchars($last_name); ?></h2>
                         <p class="mb-2">Email: <?php echo htmlspecialchars($email); ?></p>
                         <p class="mb-2">Cell Number: <?php echo htmlspecialchars($cell_no); ?></p>
+                        <p class="mb-2">Position: <b><?php echo htmlspecialchars($application_position); ?></b></p>
                         <div class="d-flex justify-content-center mt-3">
-
-                            <form id="submitEmail" method="get">
+                            <form id="submitEmail" method="GET">
                                 <div class="form-group">
                                     <textarea class="form-control mb-3" name="recruiterComment" id="recruiterComment" placeholder="Leave a comment" name="recruiterComment" rows="3" style="border: 1px solid #ced4da; padding: .375rem .75rem;"></textarea>
                                     <div class="row mb-4">
