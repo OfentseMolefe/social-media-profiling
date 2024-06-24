@@ -15,18 +15,21 @@
         .error {
             color: red;
         }
+        .card {
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Track Your Application</h1>
-        <form action="track_application.php" method="GET">
+        <form id="trackForm" action="track_application.php" method="GET">
             <div class="form-group">
-                <label for="email">Enter your email:</label>
-                <input type="email" class="form-control" id="email" name="email" required>
+                <label for="identity_number">Enter your identity number:</label>
+                <input type="text" class="form-control" id="identity_number" name="identity_number" required>
             </div>
-            <button type="submit" class="btn btn-primary">Track Application</button>
-            <a href="index.php" class="btn btn-secondary">Back</a>
+            <button type="submit" class="btn btn-primary" id="trackButton">Track Application</button>
+            <a href="index.php" class="btn btn-secondary" id="backButton" style="display: none;">Back</a>
         </form>
         <br>
         <div id="application-details">
@@ -34,19 +37,19 @@
             // Include database connection
             include "db_conn.php";
 
-            // Check if email parameter is provided
-            if (isset($_GET['email'])) {
-                $email = $_GET['email'];
+            // Check if id_number parameter is provided
+            if (isset($_GET['identity_number'])) {
+                $identity_number = $_GET['identity_number'];
 
                 // Prepare SQL statement to retrieve candidate details
                 $sql = "SELECT c.status, p.first_name, p.last_name, p.email, c.cellphone_number, p.occupation
                         FROM candidate c
                         JOIN person p ON c.person_ID = p.person_ID
-                        WHERE p.email = ?";
+                        WHERE c.identity_number = ?";
 
                 // Use prepared statement to prevent SQL injection
                 $stmt = $conn->prepare($sql);
-                $stmt->bind_param("s", $email);
+                $stmt->bind_param("s", $identity_number);
                 $stmt->execute();
                 $result = $stmt->get_result();
 
@@ -54,16 +57,21 @@
                 if ($result->num_rows > 0) {
                     // Output data of each row
                     while ($row = $result->fetch_assoc()) {
-                        echo "<h2>Candidate Details</h2>";
-                        echo "<p><strong>Name:</strong> " . $row['first_name'] . " " . $row['last_name'] . "</p>";
-                        echo "<p><strong>Email:</strong> " . $row['email'] . "</p>";
-                        echo "<p><strong>Status:</strong> " . $row['status'] . "</p>";
-                        echo "<p><strong>Cellphone Number:</strong> " . $row['cellphone_number'] . "</p>";
-                        echo "<p><strong>Occupation:</strong> " . $row['occupation'] . "</p>";
-                        // Add more fields as needed
+                        echo '<div class="card">';
+                        echo '<div class="card-header">';
+                        echo '<h2>Candidate Details</h2>';
+                        echo '</div>';
+                        echo '<div class="card-body">';
+                        echo '<p><strong>Name:</strong> ' . $row['first_name'] . ' ' . $row['last_name'] . '</p>';
+                        echo '<p><strong>Email:</strong> ' . $row['email'] . '</p>';
+                        echo '<p><strong>Status:</strong> ' . $row['status'] . '</p>';
+                        echo '<p><strong>Cellphone Number:</strong> ' . $row['cellphone_number'] . '</p>';
+                        echo '<p><strong>Occupation:</strong> ' . $row['occupation'] . '</p>';
+                        echo '</div>';
+                        echo '</div>';
                     }
                 } else {
-                    echo "<p class='error'>No candidate found for the email: " . $email . "</p>";
+                    echo "<p class='error'>No candidate found for the identity number: " . $id_number . "</p>";
                 }
 
                 // Close statement and database connection
@@ -71,7 +79,7 @@
                 $conn->close();
 
             } else {
-                echo "<p class='error'>Please provide an email to retrieve candidate details.</p>";
+                echo "<p class='error'>Please provide an identity number to retrieve candidate details.</p>";
             }
             ?>
         </div>
