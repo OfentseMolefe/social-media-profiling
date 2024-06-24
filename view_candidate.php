@@ -41,14 +41,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (mysqli_query($conn, $sql2)) {
             $socialMediaID = mysqli_insert_id($conn);
             $_SESSION['socialMediaID'] = $socialMediaID;
-            echo "New record inserted into SocialMediaProfile successfully. Social Media ID: $socialMediaID<br>";
+            //echo "New record inserted into SocialMediaProfile successfully. Social Media ID: $socialMediaID<br>";
         } else {
             echo "Error inserting into SocialMediaProfile: " . mysqli_error($conn) . "<br>";
         }
 
         // Process each social profile
         //get the links from the session
-     
+
 
         foreach ($socialProfiles as $profileData) {
             $profileParts = explode('|', $profileData);
@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $sql = "INSERT INTO $tableName (socialMediaID, user_name, profile_url) VALUES ('$socialMediaID', '$username', '$profileURL')";
             if (mysqli_query($conn, $sql)) {
-                echo "Profile captured successfully: $username ($platform)<br>";
+              //  echo "Profile captured successfully: $username ($platform)<br>";
             } else {
                 echo "Error inserting into $tableName: " . mysqli_error($conn) . "<br>";
             }
@@ -105,7 +105,7 @@ function send_email($to, $subject, $body)
 
     try {
         $mailer->send($email);
-        return 'Message has been sent';
+       // return 'Message has been sent';
     } catch (Exception $e) {
         return "Message could not be sent. Mailer Error: {$e->getMessage()}";
     }
@@ -113,7 +113,7 @@ function send_email($to, $subject, $body)
 
 // Check if the form is submitted
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-   
+
 
     // Check if "ACCEPT" button is clicked
     if (isset($_GET['accept'])) {
@@ -153,21 +153,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $stmtCandidate->bind_param("sisi", $status, $recruiterID, $comment, $applicant_id);
         $stmtCandidate->execute();
         $stmtCandidate->close();
-        
-             // Success alert
-             echo '<div style="text-align: center; margin-top: 50px;">';
-             echo '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="green" class="bi bi-check-circle" viewBox="0 0 16 16">';
-             echo '<path d="M15.854 4.146a.5.5 0 0 0-.708-.708l-8 8a.5.5 0 0 0 .708.708l8-8z"/>';
-             echo '<path d="M7.5 10.5L3.5 6.5a.5.5 0 0 0-.708.708l4 4a.5.5 0 0 0 .708 0l9-9a.5.5 0 0 0-.708-.708l-8.5 8.5z"/>';
-             echo '<path d="M7.5 1a6.5 6.5 0 1 0 6.5 6.5A6.5 6.5 0 0 0 7.5 1zm0 1A5.5 5.5 0 1 1 2 7.5 5.5 5.5 0 0 1 7.5 2z"/>';
-             echo '</svg>';
-             echo '<h2>Success</h2>';
-             echo '<p>Social media profiles have been successfully captured.</p>';
-             echo '</div>';
- 
-             // Redirect back to search page after delay
-             header("refresh:5;url=search.php");
-             exit();
+
+        /*/ Success alert
+        echo '<div style="text-align: center; margin-top: 50px; display: flex; flex-direction: column; align-items: center;">';
+        echo '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="green" class="bi bi-check-circle" viewBox="0 0 16 16">';
+        echo '<path d="M15.854 4.146a.5.5 0 0 0-.708-.708l-8 8a.5.5 0 0 0 .708.708l8-8z"/>';
+        echo '<path d="M7.5 10.5L3.5 6.5a.5.5 0 0 0-.708.708l4 4a.5.5 0 0 0 .708 0l9-9a.5.5 0 0 0-.708-.708l-8.5 8.5z"/>';
+        echo '<path d="M7.5 1a6.5 6.5 0 1 0 6.5 6.5A6.5 6.5 0 0 0 7.5 1zm0 1A5.5 5.5 0 1 1 2 7.5 5.5 5.5 0 0 1 7.5 2z"/>';
+        echo '</svg>';
+        echo '<h2>Success</h2>';
+        echo '<p>Social media profiles have been successfully captured.</p>';
+        echo '<p> Email sent Successfully</p>';
+        echo '</div>';
+
+        // Redirect back to search page after delay
+        header("refresh:5;url=search.php");
+        exit();*/
     }
 
     // Check if "DECLINE" button is clicked
@@ -191,26 +192,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $stmtCandidate->bind_param("sisi", $status, $recruiterID, $comment, $applicant_id);
         $stmtCandidate->execute();
         $stmtCandidate->close();
-           //Add  the delete function to remove the add links
-           
-           // Success alert
-           echo '<div style="text-align: center; margin-top: 50px;">';
-           echo '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="green" class="bi bi-check-circle" viewBox="0 0 16 16">';
-           echo '<path d="M15.854 4.146a.5.5 0 0 0-.708-.708l-8 8a.5.5 0 0 0 .708.708l8-8z"/>';
-           echo '<path d="M7.5 10.5L3.5 6.5a.5.5 0 0 0-.708.708l4 4a.5.5 0 0 0 .708 0l9-9a.5.5 0 0 0-.708-.708l-8.5 8.5z"/>';
-           echo '<path d="M7.5 1a6.5 6.5 0 1 0 6.5 6.5A6.5 6.5 0 0 0 7.5 1zm0 1A5.5 5.5 0 1 1 2 7.5 5.5 5.5 0 0 1 7.5 2z"/>';
-           echo '</svg>';
-           echo '<h2>Success</h2>';
-           echo '<p>Social media profiles have been successfully captured.</p>';
-           echo '</div>';
+        //Add  the delete function to remove the add links
+        // Retrieve socialMediaID using applicant_id
+        $sqlSelect = "SELECT socialMediaID FROM socialmediaprofile WHERE candidate_ID = ?";
+        $stmtSelect = $conn->prepare($sqlSelect);
+        $stmtSelect->bind_param("i", $applicant_id);
+        $stmtSelect->execute();
+        $resultSelect = $stmtSelect->get_result();
+        if ($resultSelect->num_rows > 0) {
+            $rowSelect = $resultSelect->fetch_assoc();
+            $socialMediaID = $rowSelect['socialMediaID'];
 
-           // Redirect back to search page after delay
-           header("refresh:5;url=search.php");
-           exit();
+            // Delete from socialmediaprofile
+            $sqlDel = "DELETE FROM socialmediaprofile WHERE socialMediaID = ?";
+            $stmtDel = $conn->prepare($sqlDel);
+            $stmtDel->bind_param("i", $socialMediaID);
+            if ($stmtDel->execute()) {
+              //  echo "Social media profiles deleted successfully.<br>";
+            } else {
+                echo "Error deleting social media profiles: " . $stmtDel->error . "<br>";
+            }
+            $stmtDel->close();
+        } else {
+            echo "No social media profiles found for the applicant.<br>";
+        }
+        $stmtSelect->close();
+
+
+     
     }
 
     //redirect back to search page
-    
+      // Success alert
+      echo '<div style="text-align: center; margin-top: 50px; display: flex; flex-direction: column; align-items: center;">';
+      echo '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="green" class="bi bi-check-circle" viewBox="0 0 16 16">';
+      echo '<path d="M15.854 4.146a.5.5 0 0 0-.708-.708l-8 8a.5.5 0 0 0 .708.708l8-8z"/>';
+      echo '<path d="M7.5 10.5L3.5 6.5a.5.5 0 0 0-.708.708l4 4a.5.5 0 0 0 .708 0l9-9a.5.5 0 0 0-.708-.708l-8.5 8.5z"/>';
+      echo '<path d="M7.5 1a6.5 6.5 0 1 0 6.5 6.5A6.5 6.5 0 0 0 7.5 1zm0 1A5.5 5.5 0 1 1 2 7.5 5.5 5.5 0 0 1 7.5 2z"/>';
+      echo '</svg>';
+      echo '<h2>Success</h2>';
+      echo '<p style="color: red;"> Email sent successfully.</p>';
+      echo '</div>';
+
+      // Redirect back to search page after delay
+      header("refresh:5;url=search.php");
+      exit();
 }
 ?>
 

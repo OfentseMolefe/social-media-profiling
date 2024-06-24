@@ -232,7 +232,7 @@ if (!isset($data['status']) || $data['status'] !== "OK") {
                                     <td><img src="assets/icons/<?php echo $platform_icon ?>.png" alt="<?php echo ucfirst($platform) ?>" class="social-icon" style="max-width: 90px;"></td>
                                     <td><?php echo htmlspecialchars($username); ?></td>
                                     <td><a href="<?php echo htmlspecialchars($profile); ?>" target="_blank"><?php echo htmlspecialchars($profile); ?></a></td>
-                                    <td><input type="text" name="social_profiles[]" value="<?php echo htmlspecialchars($platform . '|' . $username . '|' . $profile); ?>"><button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">Remove</button></td>
+                                    <td><input type="hidden" name="social_profiles[]" value="<?php echo htmlspecialchars($platform . '|' . $username . '|' . $profile); ?>"><button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">Remove</button></td>
                                 </tr>
                         <?php
                             }
