@@ -14,6 +14,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $captured_date = null; // Current date for captured_date
     $status = 'Pending'; // Example status, replace with actual value if needed
     $profilePicture = $_FILES['profile_picture'];
+    $imageData = null;
 
     // Check if identity number is unique
     $check_query = "SELECT * FROM candidate WHERE identity_number = ?";
@@ -28,12 +29,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Check if file was uploaded without errors
-    if ($profilePicture['error'] == 0) {
+    if (isset($profilePicture) && $profilePicture['error'] == 0) {
         $fileName = $profilePicture['name'];
         $fileTmpName = $profilePicture['tmp_name'];
         $fileSize = $profilePicture['size'];
         $fileType = $profilePicture['type'];
-        $fileExt = strtolower(end(explode('.', $fileName)));
+        $fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
         $allowed = array('jpg', 'jpeg', 'png', 'gif');
 
         if (in_array($fileExt, $allowed)) {
@@ -44,10 +45,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             echo "<script>window.location.href = 'index.php';</script>";
             exit;
         }
-    } else {
-        echo "<script>alert('Error uploading file.');</script>";
-        echo "<script>window.location.href = 'index.php';</script>";
-        exit;
     }
 
     // Begin transaction
@@ -64,9 +61,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $person_id = mysqli_insert_id($conn);
 
         // Insert data into the candidate table
-        $insert_candidate_query = "INSERT INTO candidate (`address`, `motivation`, `cellphone_number`, `identity_number`, `person_ID`, `recruiter_ID`, `captured_date`, `status`, `profile_picture`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        $stmt_candidate = $conn->prepare($insert_candidate_query);
-        $stmt_candidate->bind_param("sssssssss", $address, $motivation, $phone, $identity_number, $person_id, $recruiter_ID, $captured_date, $status, $imageData);
+        if ($imageData !== null) {
+            $insert_candidate_query = "INSERT INTO candidate (`address`, `motivation`, `cellphone_number`, `identity_number`, `person_ID`, `recruiter_ID`, `captured_date`, `status`, `profile_picture`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            $stmt_candidate = $conn->prepare($insert_candidate_query);
+            $stmt_candidate->bind_param("sssssssss", $address, $motivation, $phone, $identity_number, $person_id, $recruiter_ID, $captured_date, $status, $imageData);
+        } else {
+            $insert_candidate_query = "INSERT INTO candidate (`address`, `motivation`, `cellphone_number`, `identity_number`, `person_ID`, `recruiter_ID`, `captured_date`, `status`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            $stmt_candidate = $conn->prepare($insert_candidate_query);
+            $stmt_candidate->bind_param("ssssssss", $address, $motivation, $phone, $identity_number, $person_id, $recruiter_ID, $captured_date, $status);
+        }
         $stmt_candidate->execute();
 
         // Commit transaction
@@ -78,7 +81,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } catch (Exception $e) {
         // Rollback transaction on error
         mysqli_rollback($conn);
-        echo "<script>alert('Error: Registration failed.');</script>";
+        echo "<script>alert('Error: Registration failed. " . $e->getMessage() . "');</script>";
         echo "<script>window.location.href = 'index.php';</script>";
     }
 
