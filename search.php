@@ -49,7 +49,6 @@ $completed_count = 0;
         $total_candidates;
         $pending_total;
         $in_progress_count;
-
         $accepted_count;
         $declined_count;
         $completed_count;
@@ -82,6 +81,9 @@ while ($row_count = mysqli_fetch_assoc($result_count)) {
         $completed_count = $row_count['count'];
     } 
     
+
+    $completed_count = $accepted_count + $declined_count;
+
 }
 
 
@@ -323,7 +325,7 @@ while ($row_count = mysqli_fetch_assoc($result_count)) {
                     <tbody>
                         <?php
                     include "db_conn.php";
-                    $sql = "SELECT c.candidate_ID, p.first_name, p.last_name, p.email, c.cellphone_number, c.status,  p.occupation
+                    $sql = "SELECT c.candidate_ID,c.identity_number, p.first_name, p.last_name, p.email, c.cellphone_number, c.status,  p.occupation
                             FROM candidate c
                             JOIN person p ON c.person_ID = p.person_ID";
                         $result = mysqli_query($conn, $sql);
@@ -339,8 +341,9 @@ while ($row_count = mysqli_fetch_assoc($result_count)) {
                             <td><?php echo $row["status"]; ?></td>
 
                                 <td>
-                                <a href="view_applicant.php?identity_number=<?php echo $row["candidate_ID"]; ?>" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> Vetting</a>
-                                <a href="search.php?first_name=<?php echo $row["first_name"]; ?>&last_name=<?php echo $row["last_name"]; ?>&candidate_ID=<?php echo $row["candidate_ID"]; ?>" class="btn btn-info btn-sm"><i class="fas fa-search"></i> View</a>
+                                
+                                <a href="search.php?first_name=<?php echo $row["first_name"]; ?>&last_name=<?php echo $row["last_name"]; ?>&candidate_ID=<?php echo $row["candidate_ID"]; ?>" class="btn btn-info btn-sm"><i class="fas fa-search"></i> Vetting</a>
+                                <a href="view_applicant.php?identity_number=<?php echo $row["identity_number"]; ?>" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> View</a>
                                 </td>
                             </tr>
                         <?php
