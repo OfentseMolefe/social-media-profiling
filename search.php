@@ -24,17 +24,17 @@ $completed_count = 0;
 
 //$sql_count = "SELECT status_id, COUNT(*) as count FROM applicant GROUP BY status_id";
 
-   $sql_count = "SELECT c.status, c.candidate_ID, p.first_name, p.last_name, p.email, c.cellphone_number, p.occupation, count(*) as count
+$sql_count = "SELECT c.status, c.candidate_ID, p.first_name, p.last_name, p.email, c.cellphone_number, p.occupation, count(*) as count
    FROM candidate c
    JOIN person p ON c.person_ID = p.person_ID
    GROUP BY c.status,c.candidate_ID, p.first_name, p.last_name, p.email, c.cellphone_number, p.occupation ";
-   
-   //dynamically fetch rows according to status
+
+//dynamically fetch rows according to status
 
 
 
-        // Combined SQL query
-        $sql = "
+// Combined SQL query
+$sql = "
     SELECT 
         COUNT(*) as total, 
         SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending_total,
@@ -45,30 +45,30 @@ $completed_count = 0;
         Candidate
 ";
 
-        // Declare the variables
-        $total_candidates;
-        $pending_total;
-        $in_progress_count;
-        $accepted_count;
-        $declined_count;
-        $completed_count;
+// Declare the variables
+$total_candidates;
+$pending_total;
+$in_progress_count;
+$accepted_count;
+$declined_count;
+$completed_count;
 
-        // Execute the query
-        if ($result = $conn->query($sql)) {
-        // Fetch the result
-        if ($row = $result->fetch_assoc()) {
-            $total_candidates = $row['total'];
-            $pending_total = $row['pending_total'];
-            $in_progress_count = $row['in_progress_total'];
-            $declined_count = $row['declined_total'];
-            $accepted_count = $row['accepted_total'];
-         }
-        // Free the result set
-        $result->free();
-        }
-   
-        $completed_count = $accepted_count + $declined_count;
- 
+// Execute the query
+if ($result = $conn->query($sql)) {
+    // Fetch the result
+    if ($row = $result->fetch_assoc()) {
+        $total_candidates = $row['total'];
+        $pending_total = $row['pending_total'];
+        $in_progress_count = $row['in_progress_total'];
+        $declined_count = $row['declined_total'];
+        $accepted_count = $row['accepted_total'];
+    }
+    // Free the result set
+    $result->free();
+}
+
+$completed_count = $accepted_count + $declined_count;
+
 
 
 
@@ -86,64 +86,92 @@ $completed_count = 0;
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmF/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="assets/css/searchpage.css">
     <style>
-.status-item {
-    display: flex;
-    align-items: center;
-}
+        .status-item {
+            display: flex;
+            align-items: center;
+        }
 
-.status-button {
-    width: 60px; /* Adjust width to fit your content */
-    height: 60px; /* Adjust height to fit your content */
-    border-radius: 50%; /* Makes the button circular */
-    border: none;
-    font-size: 16px;
-    font-weight: bold;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    margin-right: 10px; /* Adjust spacing between button and name */
-}
+        .status-button {
+            width: 60px;
+            /* Adjust width to fit your content */
+            height: 60px;
+            /* Adjust height to fit your content */
+            border-radius: 50%;
+            /* Makes the button circular */
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            margin-right: 10px;
+            /* Adjust spacing between button and name */
+        }
 
-.status-name {
-    font-size: 14px; /* Adjust font size of status names */
-    white-space: nowrap; /* Prevents wrapping of long names */
-}
+        .status-name {
+            font-size: 14px;
+            /* Adjust font size of status names */
+            white-space: nowrap;
+            /* Prevents wrapping of long names */
+        }
 
-.accepted { background-color: #28a745; color: white; }
-.declined { background-color: #dc3545; color: white; }
-.in-progress { background-color: #ffc107; color: black; }
-.completed { background-color: #007bff; color: white; }
-.yellow-circle { background-color: yellow; color: black; }
+        .accepted {
+            background-color: #28a745;
+            color: white;
+        }
 
-.container {
-    margin-top: 20px;
-}
+        .declined {
+            background-color: #dc3545;
+            color: white;
+        }
 
-.row {
-    display: flex;
-    justify-content: space-between;
-}
+        .in-progress {
+            background-color: #ffc107;
+            color: black;
+        }
 
-.col {
-    flex: 1;
-}
+        .completed {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .yellow-circle {
+            background-color: yellow;
+            color: black;
+        }
+
+        .container {
+            margin-top: 20px;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .col {
+            flex: 1;
+        }
 
 
 
-        
+
         .table-wrapper {
             max-height: 400px;
             overflow-y: auto;
         }
+
         .table-hover tbody tr:hover {
             cursor: pointer;
             background-color: #f5f5f5;
         }
+
         .btn-vetting-default {
             background-color: grey;
             border-color: grey;
         }
+
         .btn-vetting-clicked {
             background-color: blue;
             border-color: blue;
@@ -166,24 +194,31 @@ $completed_count = 0;
             width: 3rem;
             height: 3rem;
         }
+
         .status-circle {
-        width: 50px; /* Adjust width as needed */
-        height: 50px; /* Adjust height as needed */
-        border-radius: 50%;
-        text-align: center;
-        line-height: 50px; /* Center text vertically */
-        font-size: 18px;
-        font-weight: bold;
-    }
+            width: 50px;
+            /* Adjust width as needed */
+            height: 50px;
+            /* Adjust height as needed */
+            border-radius: 50%;
+            text-align: center;
+            line-height: 50px;
+            /* Center text vertically */
+            font-size: 18px;
+            font-weight: bold;
+        }
 
-    .completed {
-        background-color: green; /* Default color (example: green) */
-        color: white; /* Text color (example: white) */
-    }
+        .completed {
+            background-color: green;
+            /* Default color (example: green) */
+            color: white;
+            /* Text color (example: white) */
+        }
 
-    .yellow-circle {
-        background-color: yellow !important; /* Yellow background color */
-    }
+        .yellow-circle {
+            background-color: yellow !important;
+            /* Yellow background color */
+        }
     </style>
 </head>
 
@@ -224,77 +259,88 @@ $completed_count = 0;
 
     <div class="container">
         <div class="row height d-flex justify-content-center align-items-center">
-    <div class="col-md-8">
+            <div class="col-md-8">
                 <form id="searchForm" action="vetting.php" method="POST">
-            <div class="search">
-                <i class="fa fa-search"></i>
-                <input type="text" name="searchKey" id="searchKey" class="form-control" placeholder="View applicant table (Menu) or enter full name of a person to search" value="<?php echo $full_name; ?>">
-                <button class="btn btn-primary">Search</button>
+                    <div class="search">
+                        <i class="fa fa-search"></i>
+                        <input type="text" name="searchKey" id="searchKey" class="form-control" placeholder="View applicant table (Menu) or enter full name of a person to search" value="<?php echo $full_name; ?>">
+                        <button class="btn btn-primary">Search</button>
+                    </div>
+
+                    <div class="mt-2 mb-4">
+                        <label for="socialMedia" class="form-label">Please choose the social media platforms you'd like to search:</label><br>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="linkedin" name="linkedin" value="linkedin">
+                            <label class="form-check-label" for="linkedin">LinkedIn</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="facebook" name="facebook" value="facebook">
+                            <label class="form-check-label" for="facebook">Facebook</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="instagram" name="instagram" value="instagram">
+                            <label class="form-check-label" for="instagram">Instagram</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="twitter" name="twitter" value="twitter">
+                            <label class="form-check-label" for="twitter">Twitter</label>
+                        </div>
+                    </div>
+                </form>
             </div>
-            
-            <div class="mt-2 mb-4">
-                <label for="socialMedia" class="form-label">Please choose the social media platforms you'd like to search:</label><br>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" id="linkedin" name="linkedin" value="linkedin">
-                    <label class="form-check-label" for="linkedin">LinkedIn</label>
+            <div class="mb-4 d-flex justify-content-between">
+                <?php
+                if (isset($_GET["msg"])) {
+                    $msg = htmlspecialchars($_GET["msg"]);
+                    echo '<div id="alertMessage" class="alert alert-warning alert-dismissible fade show" role="alert">
+            ' . $msg . '
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>';
+                }
+                ?>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <div class="col">
+                        <div class="status-item">
+                            <button class="status-button accepted"><?php echo $accepted_count; ?></button>
+                            <span class="status-name">Accepted</span>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="status-item">
+                            <button class="status-button declined"><?php echo $declined_count; ?></button>
+                            <span class="status-name">Declined</span>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="status-item">
+                            <button class="status-button in-progress"><?php echo $pending_total; ?></button>
+                            <span class="status-name">In Progress</span>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="status-item">
+                            <button class="status-button completed"><?php echo $completed_count; ?></button>
+                            <span class="status-name">Vetted</span>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="status-item">
+                            <button class="status-button yellow-circle"><?php echo $total_candidates; ?></button>
+                            <span class="status-name">Total Candidates</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" id="facebook" name="facebook" value="facebook">
-                    <label class="form-check-label" for="facebook">Facebook</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" id="instagram" name="instagram" value="instagram">
-                    <label class="form-check-label" for="instagram">Instagram</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" id="twitter" name="twitter" value="twitter">
-                    <label class="form-check-label" for="twitter">Twitter</label>
-                </div>
             </div>
-        </form>
-    </div>
-    <div class="container">
-    <div class="row">
-        <div class="col">
-            <div class="status-item">
-                <button class="status-button accepted"><?php echo $accepted_count; ?></button>
-                <span class="status-name">Accepted</span>
-            </div>
-        </div>
-        <div class="col">
-            <div class="status-item">
-                <button class="status-button declined"><?php echo $declined_count; ?></button>
-                <span class="status-name">Declined</span>
-            </div>
-        </div>
-        <div class="col">
-            <div class="status-item">
-                <button class="status-button in-progress"><?php echo $pending_total; ?></button>
-                <span class="status-name">In Progress</span>
-            </div>
-        </div>
-        <div class="col">
-            <div class="status-item">
-                <button class="status-button completed"><?php echo $completed_count; ?></button>
-                <span class="status-name">Vetted</span>
-            </div>
-        </div>
-        <div class="col">
-            <div class="status-item">
-                <button class="status-button yellow-circle"><?php echo $total_candidates; ?></button>
-                <span class="status-name">Total Candidates</span>
-            </div>
-        </div>
-    </div>
-</div>
-        <br>
+            <br>
 
             <!-- Add the Table for applicants -->
             <div class="table-wrapper mt-2">
                 <table class="table table-hover text-center" id="applicantTable">
                     <thead class="table-dark">
                         <tr>
-                        <th scope="col" data-column="candidate_id">Candidate ID</th>
+                            <th scope="col" data-column="candidate_id">Candidate ID</th>
                             <th scope="col" data-column="first_name">First Name</th>
                             <th scope="col" data-column="last_name">Last Name</th>
                             <th scope="col" data-column="email">Email</th>
@@ -306,26 +352,26 @@ $completed_count = 0;
                     </thead>
                     <tbody>
                         <?php
-                    include "db_conn.php";
-                    $sql = "SELECT c.candidate_ID,c.identity_number, p.first_name, p.last_name, p.email, c.cellphone_number, c.status,  p.occupation
+                        include "db_conn.php";
+                        $sql = "SELECT c.candidate_ID,c.identity_number, p.first_name, p.last_name, p.email, c.cellphone_number, c.status,  p.occupation
                             FROM candidate c
                             JOIN person p ON c.person_ID = p.person_ID";
                         $result = mysqli_query($conn, $sql);
                         while ($row = mysqli_fetch_assoc($result)) {
                         ?>
-                        <tr onclick="populateSearchBar('<?php echo $row['first_name']; ?>', '<?php echo $row['last_name']; ?>')">
-                            <td><?php echo $row["candidate_ID"]; ?></td>
-                            <td><?php echo $row["first_name"]; ?></td>
-                            <td><?php echo $row["last_name"]; ?></td>
-                            <td><?php echo $row["email"]; ?></td>
-                            <td><?php echo $row["cellphone_number"]; ?></td>
-                            <td><?php echo $row["occupation"]; ?></td>
-                            <td><?php echo $row["status"]; ?></td>
+                            <tr onclick="populateSearchBar('<?php echo $row['first_name']; ?>', '<?php echo $row['last_name']; ?>')">
+                                <td><?php echo $row["candidate_ID"]; ?></td>
+                                <td><?php echo $row["first_name"]; ?></td>
+                                <td><?php echo $row["last_name"]; ?></td>
+                                <td><?php echo $row["email"]; ?></td>
+                                <td><?php echo $row["cellphone_number"]; ?></td>
+                                <td><?php echo $row["occupation"]; ?></td>
+                                <td><?php echo $row["status"]; ?></td>
 
                                 <td>
-                                
-                                <a href="search.php?first_name=<?php echo $row["first_name"]; ?>&last_name=<?php echo $row["last_name"]; ?>&candidate_ID=<?php echo $row["candidate_ID"]; ?>" class="btn btn-info btn-sm"><i class="fas fa-search"></i> Vetting</a>
-                                <a href="view_applicant.php?identity_number=<?php echo $row["identity_number"]; ?>" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> View</a>
+
+                                    <a href="search.php?first_name=<?php echo $row["first_name"]; ?>&last_name=<?php echo $row["last_name"]; ?>&candidate_ID=<?php echo $row["candidate_ID"]; ?>" class="btn btn-info btn-sm"><i class="fas fa-search"></i> Vetting</a>
+                                    <a href="view_applicant.php?identity_number=<?php echo $row["identity_number"]; ?>" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> View</a>
                                 </td>
                             </tr>
                         <?php
@@ -336,7 +382,7 @@ $completed_count = 0;
             </div>
         </div>
     </div>
-</div>
+    </div>
 
 
 
@@ -357,7 +403,7 @@ $completed_count = 0;
             btn.classList.remove('btn-vetting-default');
             btn.classList.add('btn-vetting-clicked');
         }
-         //Add the functionality  for spinner be visible
+        //Add the functionality  for spinner be visible
         document.getElementById('searchForm').addEventListener('submit', function(event) {
             var searchKey = document.getElementById('searchKey').value.trim();
             var linkedin = document.getElementById('linkedin').checked;
@@ -372,6 +418,14 @@ $completed_count = 0;
             }
             document.getElementById('spinner-overlay').style.display = 'flex';
         });
+
+        //Script to hide the message
+        setTimeout(function() {
+            var alertMessage = document.getElementById('alertMessage');
+            if (alertMessage) {
+                alertMessage.style.display = 'none';
+            }
+        }, 5000);
     </script>
 </body>
 

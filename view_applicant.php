@@ -140,7 +140,7 @@
 
       <div class="col-md-6 application-details">
         <?php
-        $sql = "SELECT c.status, c.application_date, c.captured_date, c.motivation
+        $sql = "SELECT c.candidate_ID,c.status, c.application_date, c.captured_date, c.motivation
         FROM userandmediadb.candidate c
         WHERE c.identity_number = $identityNumber";
         $sresult = mysqli_query($conn, $sql);
@@ -221,8 +221,8 @@
           </tr>
         </table>
         <div class="d-flex justify-content-between">
-          <a href="candidate_table.php" class="btn btn-primary">Back</a>
-          <a href="cand_Delete.php" class="btn btn-danger">Delete</a>
+          <a href="search.php" class="btn btn-primary">Back</a>
+          <a href="cand_Delete.php?candidate_ID=<?php echo $applicants["candidate_ID"] ?>" class="btn btn-danger">Delete</a>
           <a href="index.php" class="btn btn-danger logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </div>
       </div>
