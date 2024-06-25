@@ -117,8 +117,7 @@ include "db_conn.php"; ?>
           $day = substr($identityNumber, 4, 2);
 
           // Convert year to full year format (assuming year 2000 and beyond for simplicity)
-          $fullYear = ($year >= 00 && $year <= 99) ? '20' . $year : '19' . $year;
-
+         $fullYear = ($year >= 0 && $year <= 24) ? '20' . str_pad($year, 2, '0', STR_PAD_LEFT) : '19' . str_pad($year, 2, '0', STR_PAD_LEFT);
           // Create a DateTime object
           $date = DateTime::createFromFormat('Y-m-d', $fullYear . '-' . $month . '-' . $day);
 
@@ -169,7 +168,7 @@ include "db_conn.php"; ?>
 
         <div class="col-md-6 application-details">
           <?php
-          $sql = "SELECT c.candidate_ID,c.status, c.application_date, c.captured_date, c.motivation
+          $sql = "SELECT c.candidate_ID,c.status, c.comment,c.application_date, c.captured_date, c.motivation
         FROM userandmediadb.candidate c
         WHERE c.identity_number = $identityNumber";
           $sresult = mysqli_query($conn, $sql);
@@ -196,7 +195,7 @@ include "db_conn.php"; ?>
               <td>
                 <?php
               $sqlRec = "Select p.first_name , p.last_name ,p.occupation 
-              FROM person p ,candidate c 
+              FROM person p ,recruiter c 
               WHERE c.recruiter_ID = (select recruiter_ID FROM candidate WHERE identity_number =?)
               AND c.person_ID = p.person_ID";
 
@@ -223,7 +222,7 @@ include "db_conn.php"; ?>
             </tr>
             <tr>
               <td><strong>Comment:</strong></td>
-              <td><?php echo $applicant['comment'] ?? 'No Comment' ?></td>
+              <td><?php echo $applicants['comment'] ?? 'No Comment' ?></td>
             </tr>
             <tr>
               <td><strong>Media links:</strong></td>
