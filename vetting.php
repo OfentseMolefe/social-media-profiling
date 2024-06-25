@@ -38,7 +38,7 @@ $merged_first_middle_name = trim($first_name . ' ' . $middle_name);
 $full_name = $merged_first_middle_name . ' ' . $last_name;
 
 // Check if the person exists
-$sql = "SELECT c.candidate_ID AS candidate_ID
+$sql = "SELECT c.candidate_ID AS candidate_ID,c.profile_picture
         FROM candidate c 
         JOIN person p ON p.person_ID = c.person_ID 
         WHERE p.last_name = ?";
@@ -53,6 +53,7 @@ if ($result->num_rows === 0) {
 
 $row = $result->fetch_assoc();
 $applicantID = $row['candidate_ID'];
+$photo = $row['profile_picture'];
 
 if (!$applicantID) {
     die("Applicant not found.");
@@ -134,7 +135,6 @@ if (!isset($data['status']) || $data['status'] !== "OK") {
 }
 
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -178,6 +178,17 @@ if (!isset($data['status']) || $data['status'] !== "OK") {
             width: 3rem;
             height: 3rem;
         }
+
+        .image-container {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+        }
     </style>
 </head>
 
@@ -188,24 +199,18 @@ if (!isset($data['status']) || $data['status'] !== "OK") {
         </div>
     </div>
 
-    <nav class="navbar navbar-light justify-content-center fs-3 mb-3" style="background-color: #00ff5573;">
+    <nav class="navbar navbar-light justify-content-between fs-3 mb-3" style="background-color: #00ff5573;">
         <div class="container-fluid">
             <span class="navbar-brand mb-0 fs-3">Vetting Page</span>
             <div>
-                <span class="navbar-brand mb-0">
-                    <?php echo "Search Key: " . htmlspecialchars($searchKey); ?>
-                </span>
-                <span class="navbar-brand mb-0">
-                    <?php
-                    if (isset($_SESSION['username'])) {
-                        // Display an active dot and the username
-                        echo "Logged In: " . htmlspecialchars($_SESSION['username']);
-                    }
-                    ?>
-                </span>
+                <button class="btn btn-info" id="viewImageBtn">View Image</button>
             </div>
         </div>
     </nav>
+
+    <div class="image-container" id="imageContainer">
+        <img src="data:image/jpeg;base64,<?php echo base64_encode($photo ?? ''); ?>" alt="Profile Picture" class="img-fluid mb-3" width="250" height="250">
+    </div>
 
     <div class="mb-4 container">
         <form id="captureForm" action="view_candidate.php" method="POST">
@@ -242,8 +247,7 @@ if (!isset($data['status']) || $data['status'] !== "OK") {
             </div>
             <div class="text-center mt-4">
                 <?php
-                    // Show capture button only if applicant exists
-                    echo '<button type="submit" class="btn btn-primary">Complete vetting</button>';
+                echo '<button type="submit" class="btn btn-primary">Complete vetting</button>';
                 ?>
             </div>
             <div class="mb-3 d-flex justify-content-between">
@@ -266,6 +270,25 @@ if (!isset($data['status']) || $data['status'] !== "OK") {
         document.getElementById('captureForm').addEventListener('submit', function() {
             document.getElementById('spinner-overlay').style.display = 'flex';
         });
+
+        document.getElementById('viewImageBtn').addEventListener('click', function() {
+            var imageContainer = document.getElementById('imageContainer');
+            if (imageContainer.style.display === 'none' || imageContainer.style.display === '') {
+                imageContainer.style.display = 'block';
+                imageContainer.style.opacity = 0;
+                setTimeout(function() {
+                    imageContainer.style.opacity = 1;
+                    imageContainer.style.transition = 'opacity 0.5s';
+                }, 10);
+            } else {
+                imageContainer.style.opacity = 0;
+                imageContainer.style.transition = 'opacity 0.5s';
+                setTimeout(function() {
+                    imageContainer.style.display = 'none';
+                }, 500);
+            }
+        });
     </script>
 </body>
+
 </html>
