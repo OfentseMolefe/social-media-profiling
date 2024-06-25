@@ -133,25 +133,20 @@
         </div>
     </div>
     <!--Add the Nav Bar-->
-  <nav class="navbar navbar-light justify-content-center fs-3 mb-5" style="background-color: #00ff5573;">
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+    <nav class="navbar navbar-expand-lg navbar-light fs-2 mb-5" style="background-color: white; font-size: 1.2rem;">
+    <a class="navbar-brand ml-2" href="#">Home</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse justify-content-end" id="navbarTogglerDemo02">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="about_us.php">About us</a>
+            </li>
+        </ul>
+    </div>
+</nav>
 
-        <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
-
-            <div class="form-inline my-2 my-lg-0">
-                <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-                    <li class="nav-item active">
-                        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="about_us.php">About us </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
     <div class="container register">
         <div class="row">
             <div class="col-md-3 register-left">
