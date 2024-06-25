@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $sql = "INSERT INTO $tableName (socialMediaID, user_name, profile_url) VALUES ('$socialMediaID', '$username', '$profileURL')";
             if (mysqli_query($conn, $sql)) {
-              //  echo "Profile captured successfully: $username ($platform)<br>";
+                //  echo "Profile captured successfully: $username ($platform)<br>";
             } else {
                 echo "Error inserting into $tableName: " . mysqli_error($conn) . "<br>";
             }
@@ -105,7 +105,7 @@ function send_email($to, $subject, $body)
 
     try {
         $mailer->send($email);
-       // return 'Message has been sent';
+        // return 'Message has been sent';
     } catch (Exception $e) {
         return "Message could not be sent. Mailer Error: {$e->getMessage()}";
     }
@@ -193,7 +193,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $stmtCandidate->execute();
         $stmtCandidate->close();
         //Add  the delete function to remove the add links
-        // Retrieve socialMediaID using applicant_id
+        /* Retrieve socialMediaID using applicant_id
         $sqlSelect = "SELECT socialMediaID FROM socialmediaprofile WHERE candidate_ID = ?";
         $stmtSelect = $conn->prepare($sqlSelect);
         $stmtSelect->bind_param("i", $applicant_id);
@@ -216,28 +216,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         } else {
             echo "No social media profiles found for the applicant.<br>";
         }
-        $stmtSelect->close();
-
-
-     
+        $stmtSelect->close();*/
     }
 
     //redirect back to search page
-      // Success alert
-      echo '<div style="text-align: center; margin-top: 50px; display: flex; flex-direction: column; align-items: center;">';
-      echo '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="green" class="bi bi-check-circle" viewBox="0 0 16 16">';
-      echo '<path d="M15.854 4.146a.5.5 0 0 0-.708-.708l-8 8a.5.5 0 0 0 .708.708l8-8z"/>';
-      echo '<path d="M7.5 10.5L3.5 6.5a.5.5 0 0 0-.708.708l4 4a.5.5 0 0 0 .708 0l9-9a.5.5 0 0 0-.708-.708l-8.5 8.5z"/>';
-      echo '<path d="M7.5 1a6.5 6.5 0 1 0 6.5 6.5A6.5 6.5 0 0 0 7.5 1zm0 1A5.5 5.5 0 1 1 2 7.5 5.5 5.5 0 0 1 7.5 2z"/>';
-      echo '</svg>';
-      echo '<h2>Success</h2>';
-      echo '<p>Social media profiles have been successfully captured.</p>';
-      echo '<p> Email sent Successfully</p>';
-      echo '</div>';
+    ob_start();
 
-      // Redirect back to search page after delay
-      header("refresh:5;url=search.php");
-      exit();
+    // Display the success message using HTML and PHP
+    echo '<div style="text-align: center; margin-top: 200px; display: flex; flex-direction: column; align-items: center;">';
+    echo '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="green" class="bi bi-check-circle" viewBox="0 0 16 16">';
+    echo '<path d="M15.854 4.146a.5.5 0 0 0-.708-.708l-8 8a.5.5 0 0 0 .708.708l8-8z"/>';
+    echo '<path d="M7.5 10.5L3.5 6.5a.5.5 0 0 0-.708.708l4 4a.5.5 0 0 0 .708 0l9-9a.5.5 0 0 0-.708-.708l-8.5 8.5z"/>';
+    echo '<path d="M7.5 1a6.5 6.5 0 1 0 6.5 6.5A6.5 6.5 0 0 0 7.5 1zm0 1A5.5 5.5 0 1 1 2 7.5 5.5 5.5 0 0 1 7.5 2z"/>';
+    echo '</svg>';
+    echo '<h2>Success</h2>';
+    echo '<p>Social media profiles have been successfully captured.</p>';
+    echo '<p>Email sent successfully</p>';
+    echo '</div>';
+
+    // Use JavaScript to redirect after a delay
+    echo '<script>
+        setTimeout(function() {
+            window.location.href = "search.php?msg=Data added successfully";
+        }, 5000);
+    </script>';
+
+    // End and send the output buffer
+    ob_end_flush();
+    exit();
 }
 ?>
 
@@ -358,23 +364,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                         </div>
                     </div>
                 </div>
-
-                <!-- URLs 
-                <div class="card mb-3">
-                    <div class="card-body text-center">
-                        <ul class="list-unstyled mb-0">
-                            <li class="mb-2"><a href="<?php echo htmlspecialchars($linkedin_url); ?>" target="_blank"><i class="fab fa-linkedin fa-lg me-2"></i> LinkedIn</a></li>
-                            <li class="mb-2"><a href="<?php echo htmlspecialchars($twitter_url); ?>" target="_blank"><i class="fab fa-twitter fa-lg me-2"></i> Twitter</a></li>
-                            <li class="mb-2"><a href="<?php echo htmlspecialchars($instagram_url); ?>" target="_blank"><i class="fab fa-instagram fa-lg me-2"></i> Instagram</a></li>
-                            <li class="mb-2"><a href="<?php echo htmlspecialchars($facebook_url); ?>" target="_blank"><i class="fab fa-facebook-f fa-lg me-2"></i> Facebook</a></li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="d-flex justify-content-between">
-                    <a href="candidate_table.php" class="btn btn-primary">Back</a>
-                    <a href="index.php" class="btn btn-danger">Logout</a>
-                </div> -->
             </div>
         </div>
     </div>
