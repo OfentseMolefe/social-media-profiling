@@ -117,10 +117,10 @@ $row = $result->fetch_assoc();
                 <div class="form-group mb-3">
                     <label>Occupation:</label>
                     &nbsp;
-                    <input type="radio" class="form-check-input" name="occupation" id="admin" value="Admin" <?php echo ($row['occupation'] == 'Admin') ? 'checked' : '' ?> required>
+                    <input type="radio" class="form-check-input" name="occupation" id="admin" value="Admin" <?php echo ($row['occupation'] == 'Admin') ? 'checked' : '' ?> readonly>
                     <label for="admin" class="form-input-label">ADMIN</label>
                     &nbsp;
-                    <input type="radio" class="form-check-input" name="occupation" id="hr" value="Hr" <?php echo ($row['occupation'] == 'Hr') ? 'checked' : '' ?> required>
+                    <input type="radio" class="form-check-input" name="occupation" id="hr" value="Hr" <?php echo ($row['occupation'] == 'Hr') ? 'checked' : '' ?> readonly>
                     <label for="hr" class="form-input-label">HR</label>
                 </div>
 
