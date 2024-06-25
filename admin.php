@@ -20,7 +20,7 @@ session_start();
 <body>
   <nav class="navbar navbar-light justify-content-center fs-3 mb-5n" style="background-color: #00ff5573;">
     <div class="text-center">
-      <span style="font-size: 1.5rem;">Administrative table for system users and admins</span>
+      <span style="font-size: 1.5rem;">Users View And Account Manage</span>
     </div>
   </nav>
 
@@ -48,9 +48,7 @@ session_start();
     }
     ?>
     <div class="mb-3 d-flex justify-content-between">
-      <a href="add-new.php" class="btn btn-dark">Add New</a>
-
-      <a href="search.php" class="btn btn-light">Go to Search page </a>
+      <a href="search.php" class="btn btn-light">Back </a>
     </div>
     <table class="table table-hover text-center">
       <thead class="table-dark">
@@ -90,9 +88,9 @@ session_start();
             <td>
               <?php if ($isCurrentUser) : ?>
                 <a href="edit.php?recruiter_ID=<?php echo $row["recruiter_ID"] ?>" class="link-dark"><i class="fa-solid fa-pen-to-square fs-5 me-3"></i></a>
-              <?php endif; ?>
-              <a href="delete.php?recruiter_ID=<?php echo $row["recruiter_ID"] ?>" class="link-dark"><i class="fa-solid fa-trash fs-5"></i></a>
-            </td>
+                <a href="delete.php?recruiter_ID=<?php echo $row["recruiter_ID"] ?>" class="link-dark"><i class="fa-solid fa-trash fs-5"></i></a>
+                <?php endif; ?>
+                </td>
           </tr>
         <?php
         }

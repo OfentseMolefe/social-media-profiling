@@ -144,8 +144,8 @@ $completed_count = $accepted_count + $declined_count;
                     Menu
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    <li><a class="dropdown-item" href="applicants.php"><i class="fas fa-users"></i> View Applicants</a></li>
-                    <li><a class="dropdown-item" href="candidate_table.php"><i class="fas fa-user"></i> Prospective Candidate(s)</a></li>
+                    <li><a class="dropdown-item" href="admin.php"><i class="fas fa-users"></i> Edit your profile</a></li>
+    
                     <li><a class="dropdown-item" href="index.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
                 </ul>
             </div>
