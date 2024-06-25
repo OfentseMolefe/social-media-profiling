@@ -16,7 +16,7 @@ $last_name = isset($_GET['last_name']) ? $_GET['last_name'] : '';
 $application_date = isset($_GET['application_date']) ? $_GET['application_date'] : '';
 
 // Build the SQL query with dynamic filters
-$sql = "SELECT c.candidate_ID, p.first_name, p.last_name, p.email, c.identity_number, c.application_date,c.comment
+$sql = "SELECT c.candidate_ID, p.first_name, p.last_name, p.email, c.identity_number, c.application_date, c.comment
 FROM userandmediadb.candidate c
 JOIN userandmediadb.recruiter r ON c.recruiter_ID = r.recruiter_ID
 JOIN userandmediadb.person p ON c.person_ID = p.person_ID
@@ -46,7 +46,7 @@ if ($last_name) {
 }
 
 if ($application_date) {
-    $sql .= " AND c.application_date = ?";
+    $sql .= " AND DATE(c.application_date) = ?";
     $types .= 's';
     $params[] = $application_date;
 }
@@ -106,8 +106,7 @@ $result = $stmt->get_result();
                 <input type="checkbox" class="form-check-input" id="statusCheckbox" onclick="toggleFilterInput(this, 'statusInput')" <?php if ($status) echo 'checked'; ?>>
                 <label for="statusCheckbox" class="form-check-label">Filter by Status</label>
             </div>
-            <div class="mb-3" id="statusInput" style="<?php if ($status) echo 'display:block;';
-                                                        else echo 'display:none;'; ?>">
+            <div class="mb-3" id="statusInput" style="<?php if ($status) echo 'display:block;'; else echo 'display:none;'; ?>">
                 <label for="status" class="form-label">Status</label>
                 <input type="text" name="status" id="status" class="form-control" value="<?php echo htmlspecialchars($status); ?>">
             </div>
@@ -116,8 +115,7 @@ $result = $stmt->get_result();
                 <input type="checkbox" class="form-check-input" id="firstNameCheckbox" onclick="toggleFilterInput(this, 'firstNameInput')" <?php if ($first_name) echo 'checked'; ?>>
                 <label for="firstNameCheckbox" class="form-check-label">Filter by First Name</label>
             </div>
-            <div class="mb-3" id="firstNameInput" style="<?php if ($first_name) echo 'display:block;';
-                                                            else echo 'display:none;'; ?>">
+            <div class="mb-3" id="firstNameInput" style="<?php if ($first_name) echo 'display:block;'; else echo 'display:none;'; ?>">
                 <label for="first_name" class="form-label">First Name</label>
                 <input type="text" name="first_name" id="first_name" class="form-control" value="<?php echo htmlspecialchars($first_name); ?>">
             </div>
@@ -126,8 +124,7 @@ $result = $stmt->get_result();
                 <input type="checkbox" class="form-check-input" id="lastNameCheckbox" onclick="toggleFilterInput(this, 'lastNameInput')" <?php if ($last_name) echo 'checked'; ?>>
                 <label for="lastNameCheckbox" class="form-check-label">Filter by Last Name</label>
             </div>
-            <div class="mb-3" id="lastNameInput" style="<?php if ($last_name) echo 'display:block;';
-                                                        else echo 'display:none;'; ?>">
+            <div class="mb-3" id="lastNameInput" style="<?php if ($last_name) echo 'display:block;'; else echo 'display:none;'; ?>">
                 <label for="last_name" class="form-label">Last Name</label>
                 <input type="text" name="last_name" id="last_name" class="form-control" value="<?php echo htmlspecialchars($last_name); ?>">
             </div>
@@ -136,8 +133,7 @@ $result = $stmt->get_result();
                 <input type="checkbox" class="form-check-input" id="applicationDateCheckbox" onclick="toggleFilterInput(this, 'applicationDateInput')" <?php if ($application_date) echo 'checked'; ?>>
                 <label for="applicationDateCheckbox" class="form-check-label">Filter by Application Date</label>
             </div>
-            <div class="mb-3" id="applicationDateInput" style="<?php if ($application_date) echo 'display:block;';
-                                                                else echo 'display:none;'; ?>">
+            <div class="mb-3" id="applicationDateInput" style="<?php if ($application_date) echo 'display:block;'; else echo 'display:none;'; ?>">
                 <label for="application_date" class="form-label">Application Date</label>
                 <input type="date" name="application_date" id="application_date" class="form-control" value="<?php echo htmlspecialchars($application_date); ?>">
             </div>
@@ -145,7 +141,7 @@ $result = $stmt->get_result();
             <button type="submit" class="btn btn-primary">Filter</button>
         </form>
 
-        <?php if ($result->num_rows > 0) : ?>
+        <?php if ($result->num_rows > 0): ?>
             <table class="table table-striped mt-4">
                 <thead>
                     <tr>
@@ -159,7 +155,7 @@ $result = $stmt->get_result();
                     </tr>
                 </thead>
                 <tbody>
-                    <?php while ($row = $result->fetch_assoc()) : ?>
+                    <?php while($row = $result->fetch_assoc()): ?>
                         <tr>
                             <td><?php echo htmlspecialchars($row['candidate_ID']); ?></td>
                             <td><?php echo htmlspecialchars($row['first_name']); ?></td>
@@ -167,16 +163,12 @@ $result = $stmt->get_result();
                             <td><?php echo htmlspecialchars($row['email']); ?></td>
                             <td><?php echo htmlspecialchars($row['identity_number']); ?></td>
                             <td><?php echo htmlspecialchars($row['application_date']); ?></td>
-                            <td><?php if (empty($row['comment'])) {
-                                    echo "NOT YET Vetted";
-                                } else {
-                                    echo htmlspecialchars($row['comment']);
-                                } ?></td>
+                            <td><?php echo empty($row['comment']) ? "NOT YET Vetted" : htmlspecialchars($row['comment']); ?></td>
                         </tr>
                     <?php endwhile; ?>
                 </tbody>
             </table>
-        <?php else : ?>
+        <?php else: ?>
             <p>No candidates found.</p>
         <?php endif; ?>
 
@@ -187,7 +179,7 @@ $result = $stmt->get_result();
             <input type="hidden" name="application_date" value="<?php echo htmlspecialchars($application_date); ?>">
             <input type="hidden" name="recruiter_ID" value="<?php echo htmlspecialchars($recruiter_ID); ?>">
             <div class="d-flex">
-                <a href="super_user.php" class="btn btn-primary me-5">Back to Employee Page</a>
+                <a href="recruiters.php" class="btn btn-primary me-5">Back to Employee Page</a>
                 <button type="submit" name="export_type" value="csv" class="btn btn-secondary">Export to CSV</button>
             </div>
         </form>
