@@ -46,32 +46,29 @@ session_start();
         }
         ?>
 
-     <!-- Search Form 
-        <form action="search.php" method="GET" class="mb-4">
-            <div class="input-group">
-                <input type="text" name="searchKey" class="form-control" placeholder="Search by name..." aria-label="Search">
-                <button class="btn btn-primary" type="submit">Search</button>
-            </div>
-        </form>
-     -->   
-
         <table class="table table-hover text-center" id="applicantTable">
             <thead class="table-dark">
                 <tr>
-                    <th scope="col" data-column="recruiter_ID">Employee ID</th>
-                    <th scope="col" data-column="first_name">First Name</th>
-                    <th scope="col" data-column="last_name">Last Name</th>
-                    <th scope="col" data-column="email">Email</th>
-                    <th scope="col" data-column="application_position">Position</th>
+                    <th scope="col">Employee ID</th>
+                    <th scope="col">First Name</th>
+                    <th scope="col">Last Name</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Position</th>
+                    <th scope="col">Action</th>
                 </tr>
             </thead>
             <tbody>
                 <?php
-                $sql = "SELECT r.recruiter_ID, p.first_name, p.last_name, p.email, r.username, p.occupation
-                FROM recruiter r
-                JOIN person p ON r.person_ID = p.person_ID";
+                $sql = "SELECT r.recruiter_ID, p.first_name, p.last_name, p.email, r.password, p.occupation 
+        FROM recruiter r
+        JOIN person p ON r.person_ID = p.person_ID
+        WHERE p.first_name != 'system'";
                 $result = mysqli_query($conn, $sql);
+                $isLoggedIn = $_SESSION['recruiter_ID'];
+
                 while ($row = mysqli_fetch_assoc($result)) {
+                    // check the current user
+                    $isCurrentUser = ($row['recruiter_ID'] == $isLoggedIn);
                 ?>
                     <tr ondblclick="redirectToSummary(<?php echo $row['recruiter_ID']; ?>)">
                         <td><?php echo $row["recruiter_ID"]; ?></td>
@@ -79,6 +76,9 @@ session_start();
                         <td><?php echo $row["last_name"]; ?></td>
                         <td><?php echo $row["email"]; ?></td>
                         <td><?php echo $row["occupation"]; ?></td>
+                        <td>
+                            <a href="delete.php?recruiter_ID=<?php echo $row["recruiter_ID"] ?>" class="link-dark"><i class="fa-solid fa-trash fs-5"></i></a>
+                        </td>
                     </tr>
                 <?php
                 }
@@ -97,25 +97,8 @@ session_start();
 
     <!-- Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
-    <!-- Sorting Script -->
+
     <script>
-
-       /* document.addEventListener('DOMContentLoaded', () => {
-            const getCellValue = (row, index) => row.children[index].innerText || row.children[index].textContent;
-
-            const comparer = (index, asc) => (a, b) => ((v1, v2) => 
-                v1 !== '' && v2 !== '' && !isNaN(v1) && !isNaN(v2) ? v1 - v2 : v1.toString().localeCompare(v2)
-            )(getCellValue(asc ? a : b, index), getCellValue(asc ? b : a, index));
-
-            document.querySelectorAll('th').forEach(th => th.addEventListener('click', (() => {
-                const table = th.closest('table');
-                Array.from(table.querySelectorAll('tr:nth-child(n+2)'))
-                    .sort(comparer(Array.from(th.parentNode.children).indexOf(th), this.asc = !this.asc))
-                    .forEach(tr => table.appendChild(tr));
-            })));
-        });
-        */
-
         function redirectToSummary(recruiterId) {
             fetch('set_recruiter_session.php', {
                 method: 'POST',
