@@ -1,0 +1,31 @@
+
+/* Dropdown menu styles */
+.dropdown-menu {
+    min-width: 150px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-item {
+    padding: 10px;
+    font-size: 16px;
+    color: #333;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-item:hover {
+    background-color: #f5f5f5;
+}
+
+/* Red navbar */
+.navbar {
+    background-color: red;
+}
+
+.menu-bar { 
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
