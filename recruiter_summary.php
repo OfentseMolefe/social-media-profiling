@@ -16,7 +16,7 @@ $last_name = isset($_GET['last_name']) ? $_GET['last_name'] : '';
 $application_date = isset($_GET['application_date']) ? $_GET['application_date'] : '';
 
 // Build the SQL query with dynamic filters
-$sql = "SELECT c.candidate_ID, p.first_name, p.last_name, p.email, c.identity_number, c.application_date,c.comment
+$sql = "SELECT c.candidate_ID, p.first_name, p.last_name, p.email, c.identity_number, c.application_date, c.comment
 FROM userandmediadb.candidate c
 JOIN userandmediadb.recruiter r ON c.recruiter_ID = r.recruiter_ID
 JOIN userandmediadb.person p ON c.person_ID = p.person_ID
@@ -46,7 +46,7 @@ if ($last_name) {
 }
 
 if ($application_date) {
-    $sql .= " AND c.application_date = ?";
+    $sql .= " AND DATE(c.application_date) = ?";
     $types .= 's';
     $params[] = $application_date;
 }
@@ -163,11 +163,7 @@ $result = $stmt->get_result();
                             <td><?php echo htmlspecialchars($row['email']); ?></td>
                             <td><?php echo htmlspecialchars($row['identity_number']); ?></td>
                             <td><?php echo htmlspecialchars($row['application_date']); ?></td>
-                            <td><?php   if (empty($row['comment'])) {
-        echo "NOT YET Vetted";
-    } else {
-        echo htmlspecialchars($row['comment']);
-    } ?></td>
+                            <td><?php echo empty($row['comment']) ? "NOT YET Vetted" : htmlspecialchars($row['comment']); ?></td>
                         </tr>
                     <?php endwhile; ?>
                 </tbody>
@@ -183,9 +179,9 @@ $result = $stmt->get_result();
             <input type="hidden" name="application_date" value="<?php echo htmlspecialchars($application_date); ?>">
             <input type="hidden" name="recruiter_ID" value="<?php echo htmlspecialchars($recruiter_ID); ?>">
             <div class="d-flex">
-    <a href="super_user.php" class="btn btn-primary me-5">Back to Employee Page</a>
-    <button type="submit" name="export_type" value="csv" class="btn btn-secondary">Export to CSV</button>
-</div>
+                <a href="super_user.php" class="btn btn-primary me-5">Back to Employee Page</a>
+                <button type="submit" name="export_type" value="csv" class="btn btn-secondary">Export to CSV</button>
+            </div>
         </form>
     </div>
 
