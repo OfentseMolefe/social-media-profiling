@@ -35,9 +35,8 @@
         }
     </style>
     <script>
-        // Spinner function
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('captureForm').addEventListener('submit', function() {
+          document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('captureForm').addEventListener('submit', function () {
                 document.getElementById('spinner-overlay').style.display = 'flex';
             });
         });
@@ -100,8 +99,8 @@
             return true;
         }
 
-        $(document).ready(function() {
-            $('#application_position').change(function() {
+        $(document).ready(function () {
+            $('#application_position').change(function () {
                 if ($(this).val() === 'Other') {
                     $('#other_position_div').show();
                     $('#other_position').attr('required', true);
@@ -110,6 +109,17 @@
                 } else {
                     $('#other_position_div').hide();
                     $('#other_position').removeAttr('required');
+                }
+            });
+
+            // Update file input label
+            $('#profile_picture').change(function () {
+                var input = event.target;
+                var label = document.querySelector('.custom-file-label');
+                if (input.files.length > 0) {
+                    label.textContent = input.files[0].name;
+                } else {
+                    label.textContent = 'Upload your picture';
                 }
             });
         });
@@ -165,7 +175,7 @@
                 <div class="tab-content" id="myTabContent">
                     <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
                         <h3 class="register-heading">Application form</h3>
-                        <form id="captureForm" action="process_form.php" method="POST" name="registrationForm" onsubmit="return validateForm()"  enctype="multipart/form-data">
+                        <form id="captureForm" action="process_form.php" method="POST" name="registrationForm" onsubmit="return validateForm()" enctype="multipart/form-data">
                             <div class="row register-form">
                                 <div class="col-md-6">
                                     <div class="form-group">
@@ -183,12 +193,15 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
+                                        <label for="profile_picture" class="custom-file-label">Upload your picture</label>
+                                        <input type="file" class="form-control custom-file-input" id="profile_picture" name="profile_picture" accept="image/*" placeholder="Upload photo">
+                                    </div>
+                                    <div class="form-group">
                                         <input type="email" class="form-control" name="email" placeholder="Your Email *" required />
                                     </div>
                                     <div class="form-group">
                                         <input type="text" class="form-control" name="phone" minlength="10" maxlength="10" placeholder="Your Phone *" required />
                                     </div>
-
                                     <div class="form-group">
                                         <select class="form-control" name="application_position" id="application_position" required>
                                             <option class="hidden" selected disabled>Please select your Application position</option>
@@ -203,17 +216,14 @@
                                     <div class="form-group" id="other_position_div" style="display: none;">
                                         <input type="text" class="form-control" name="other_position" id="other_position" placeholder="Please specify your Application position">
                                     </div>
-
                                     <div class="form-group">
                                         <input type="text" class="form-control" name="identity_number" placeholder="Enter Your Identity number *" required />
-                                    </div>
-                                    <div class="form-group">
-                                        <input type="file" class="form-control" id="profile_picture" name="profile_picture" accept="image/*" placeholder="Upload photo">
                                     </div>
                                     <input type="submit" class="btn btn-primary btn-lg" value="APPLY" />
                                 </div>
                             </div>
                         </form>
+
                     </div>
                 </div>
             </div>
