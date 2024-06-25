@@ -7,7 +7,7 @@ $hr_onDuty = $_SESSION['username'];
 $recruiterID = $_SESSION['recruiterID'];
 
 // Retrieve candidate details from the database
-$stmt = $conn->prepare("SELECT c.candidate_ID, p.first_name, p.last_name, p.email, c.cellphone_number, p.occupation
+$stmt = $conn->prepare("SELECT c.candidate_ID, p.first_name, p.last_name, p.email, c.cellphone_number, p.occupation, c.profile_picture
                         FROM candidate c 
                         JOIN person p ON p.person_ID = c.person_ID 
                         WHERE c.candidate_ID = ?");
@@ -26,7 +26,7 @@ $last_name = $row["last_name"];
 $email = $row["email"];
 $cell_no = $row["cellphone_number"];
 $application_position = $row["occupation"];
-
+$photo = $row['profile_picture'];
 //Get the Array of socials
 // Initialize social profiles array
 $socialProfiles = [];
@@ -334,7 +334,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             <div class="col-lg-4">
                 <div class="card mb-3">
                     <div class="card-body text-center">
-                        <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp" alt="avatar" class="rounded-circle img-fluid" style="width: 150px;">
+                    <img src="data:image/jpeg;base64,<?php echo base64_encode($photo?? ''); ?>" alt="Profile Picture" class="img-fluid mb-3" width="250" height="250">
                         <h2 class="mt-3"><?php echo htmlspecialchars($first_name); ?> <?php echo htmlspecialchars($last_name); ?></h2>
                         <p class="mb-2">Email: <?php echo htmlspecialchars($email); ?></p>
                         <p class="mb-2">Cell Number: <?php echo htmlspecialchars($cell_no); ?></p>
