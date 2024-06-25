@@ -37,7 +37,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Check the user's occupation
             if ($row["occupation"] == "Admin") {
                 // Redirect to admin.php for admin users
-                header("Location: admin.php");
+                header("Location: super_user.php");
                 exit();
             } else {
                 // Redirect to search.php for regular users
