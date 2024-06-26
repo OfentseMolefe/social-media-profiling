@@ -211,16 +211,15 @@ $completed_count = $accepted_count + $declined_count;
     <div class="container">
         <!-- Dropdown Menu -->
         <div class="menu-bar">
-            <div class="dropdown">
+        <div class="dropdown">
                 <button class="btn btn-secondary dropdown-toggle menu-btn" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
                     Menu
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                     <li><a class="dropdown-item" href="admin.php"><i class="fas fa-users"></i> Edit your profile</a></li>
-
                     <li><a class="dropdown-item" href="index.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
                 </ul>
-            </div>
+        </div>
         </div>
         <div class="d-flex align-items-right">
             <?php
@@ -285,7 +284,7 @@ $completed_count = $accepted_count + $declined_count;
                         <div class="status-name">Declined</div>
                     </div>
                     <div class="col status-item">
-                        <button class="status-button in-progress" onclick="filterTable('in_progress')"><?php echo $pending_total; ?></button>
+                        <button class="status-button in-progress" onclick="filterTable('inprogress')"><?php echo $pending_total; ?></button>
                         <div class="status-name">In Progress</div>
                     </div>
                     <div class="col status-item">
@@ -391,7 +390,7 @@ $completed_count = $accepted_count + $declined_count;
             }
         }, 5000);
 
-        function filterTable(status) {
+       /* function filterTable(status) {
             var rows = document.querySelectorAll('.candidate-row');
             rows.forEach(function(row) {
                 if (status === 'completed') {
@@ -408,7 +407,19 @@ $completed_count = $accepted_count + $declined_count;
                     }
                 }
             });
-        }
+        }*/
+
+          // JavaScript function to filter table rows based on status
+          function filterTable(status) {
+                    var rows = document.getElementsByClassName('status-row');
+                    for (var i = 0; i < rows.length; i++) {
+                        if (status === '' || rows[i].getAttribute('data-status') === status) {
+                            rows[i].style.display = '';
+                        } else {
+                            rows[i].style.display = 'none';
+                        }
+                    }
+                }
     </script>
 </body>
 </html>

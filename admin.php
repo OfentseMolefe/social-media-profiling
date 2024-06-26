@@ -69,7 +69,7 @@ session_start();
         $sql = "SELECT r.recruiter_ID, p.first_name, p.last_name, p.email, r.password, p.occupation 
         FROM recruiter r
         JOIN person p ON r.person_ID = p.person_ID
-        WHERE p.first_name != 'system'";
+        WHERE p.first_name != 'system' AND p.occupation !='admin'";
         $result = mysqli_query($conn, $sql);
         $isLoggedIn = $_SESSION['recruiterID'];
 
@@ -88,8 +88,7 @@ session_start();
             <td>
               <?php if ($isCurrentUser) : ?>
                 <a href="edit.php?recruiter_ID=<?php echo $row["recruiter_ID"] ?>" class="link-dark"><i class="fa-solid fa-pen-to-square fs-5 me-3"></i></a>
-                <a href="delete.php?recruiter_ID=<?php echo $row["recruiter_ID"] ?>" class="link-dark"><i class="fa-solid fa-trash fs-5"></i></a>
-                <?php endif; ?>
+                    <?php endif; ?>
                 </td>
           </tr>
         <?php
