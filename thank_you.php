@@ -9,6 +9,7 @@
 </head>
 
 <body>
+<img src="assets/Login_Background.jpg" class="w-100 fixed-top" style="z-index: -1;">
     <div class="container">
         <div class="row justify-content-center mt-5">
             <div class="col-md-6">

@@ -20,8 +20,9 @@
 </head>
 
 <body>
+<img src="assets/Login_Background.jpg" class="w-100 fixed-top" style="z-index: -1;">
     <div class="container">
-        <h1 class="mt-4">About Us</h1>
+        <h1 class="mt-3 " style="color: #ccc;">About Us</h1>
         <div class="pdf-container">
             <embed src="assets/about_us.pdf" type="application/pdf" width="100%" height="100%">
         </div>

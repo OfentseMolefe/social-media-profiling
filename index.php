@@ -135,14 +135,14 @@
     </div>
     <!--Add the Nav Bar-->
     <nav class="navbar navbar-expand-lg navbar-light fs-2 mb-5" style="font-size: 1.2rem;">
-    <a class="navbar-brand ml-2" href="#">Home</a>
+    <a class="navbar-brand ml-2" href="#"  style="color: whitesmoke;">Home</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse justify-content-end" id="navbarTogglerDemo02">
         <ul class="navbar-nav">
             <li class="nav-item">
-                <a class="nav-link" href="about_us.php">About us</a>
+                <a class="nav-link" href="about_us.php" style="color: whitesmoke;">About us</a>
             </li>
         </ul>
     </div>
