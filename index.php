@@ -127,13 +127,14 @@
 </head>
 
 <body>
+<img src="assets/Login_Background.jpg" class="w-100 fixed-top" style="z-index: -1;">
     <div id="spinner-overlay" class="spinner-overlay">
         <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Loading...</span>
         </div>
     </div>
     <!--Add the Nav Bar-->
-    <nav class="navbar navbar-expand-lg navbar-light fs-2 mb-5" style="background-color: white; font-size: 1.2rem;">
+    <nav class="navbar navbar-expand-lg navbar-light fs-2 mb-5" style="font-size: 1.2rem;">
     <a class="navbar-brand ml-2" href="#">Home</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
