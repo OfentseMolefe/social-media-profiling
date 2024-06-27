@@ -2,9 +2,10 @@
 include "db_conn.php";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Sanitize and validate input data
     $first_name = htmlspecialchars($_POST["first_name"]);
     $last_name = htmlspecialchars($_POST["last_name"]);
-    $email = htmlspecialchars($_POST["email"]);
+    $email = filter_var($_POST["email"], FILTER_SANITIZE_EMAIL);
     $address = htmlspecialchars($_POST["address"]);
     $motivation = htmlspecialchars($_POST["motivation"]);
     $phone = htmlspecialchars($_POST["phone"]);
@@ -16,6 +17,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $profilePicture = $_FILES['profile_picture'];
     $imageData = null;
 
+    // Validate fields
+    $errors = [];
+
+    if (!preg_match("/^[a-zA-Z\s]*$/", $first_name)) {
+        $errors[] = "First name can only contain letters and spaces.";
+    }
+    if (!preg_match("/^[a-zA-Z\s]*$/", $last_name)) {
+        $errors[] = "Last name can only contain letters and spaces.";
+    }
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = "Invalid email format.";
+    }
+    if (!preg_match("/^[0-9]{10}$/", $phone)) {
+        $errors[] = "Phone number must be exactly 10 digits.";
+    }
+    if (!preg_match("/^[0-9]*$/", $identity_number)) {
+        $errors[] = "Identity number can only contain digits.";
+    }
+
     // Check if identity number is unique
     $check_query = "SELECT * FROM candidate WHERE identity_number = ?";
     $stmt = $conn->prepare($check_query);
@@ -23,28 +43,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt->execute();
     $result = $stmt->get_result();
     if ($result->num_rows > 0) {
-        echo "<script>alert('Error: Identity number already exists.');</script>";
-        echo "<script>window.location.href = 'index.php';</script>";
-        exit;
+        $errors[] = "Identity number already exists.";
     }
 
-    // Check if file was uploaded without errors
+    // Check for file upload errors
     if (isset($profilePicture) && $profilePicture['error'] == 0) {
         $fileName = $profilePicture['name'];
         $fileTmpName = $profilePicture['tmp_name'];
         $fileSize = $profilePicture['size'];
         $fileType = $profilePicture['type'];
         $fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
-        $allowed = array('jpg', 'jpeg', 'png', 'gif');
+        $allowed = ['jpg', 'jpeg', 'png', 'gif'];
 
-        if (in_array($fileExt, $allowed)) {
+        if (!in_array($fileExt, $allowed)) {
+            $errors[] = "Invalid file type. Only JPG, JPEG, PNG, and GIF files are allowed.";
+        } else {
             // Read the image file into a binary string
             $imageData = file_get_contents($fileTmpName);
-        } else {
-            echo "<script>alert('Invalid file type. Only JPG, JPEG, PNG, and GIF files are allowed.');</script>";
-            echo "<script>window.location.href = 'index.php';</script>";
-            exit;
         }
+    }
+
+    // If there are any errors, display them and stop execution
+    if (count($errors) > 0) {
+        foreach ($errors as $error) {
+            echo "<script>alert('$error');</script>";
+        }
+        echo "<script>window.location.href = 'index.php';</script>";
+        exit;
     }
 
     // Begin transaction
@@ -52,7 +77,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     try {
         // Insert data into the person table
-        $occupation = $application_position; // Assuming occupation is same as application position
+        $occupation = $application_position; // Assuming occupation is the same as application position
         $stmt_person = $conn->prepare("INSERT INTO `person` (`first_name`, `last_name`, `email`, `occupation`) VALUES (?, ?, ?, ?)");
         $stmt_person->bind_param("ssss", $first_name, $last_name, $email, $occupation);
         $stmt_person->execute();

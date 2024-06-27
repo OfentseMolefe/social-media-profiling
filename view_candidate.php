@@ -120,7 +120,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $status = 'Accepted';
         $subject = 'Application Accepted';
         $interview_date = $_GET['interview_date'] ?? '';
-        $interview_time = $_GET['interview_time'] ?? '';
+        // Convert the interview time to 12-hour format with AM/PM
+        $interviewDateTime = new DateTime($interview_time);
+        $formattedInterviewTime = $interviewDateTime->format('h:i A');
+
         $comment = $_GET['recruiterComment'] ?? 'No comment';
         $body = "Dear $first_name $last_name,<br><br>
         I hope this email finds you well.<br><br>
@@ -246,8 +249,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     exit();
 }
 ?>
-
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -334,7 +335,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             <div class="col-lg-4">
                 <div class="card mb-3">
                     <div class="card-body text-center">
-                    <img src="data:image/jpeg;base64,<?php echo base64_encode($photo?? ''); ?>" alt="Profile Picture" class="img-fluid mb-3" width="250" height="250">
+                        <img src="data:image/jpeg;base64,<?php echo base64_encode($photo ?? ''); ?>" alt="Profile Picture" class="img-fluid mb-3" width="250" height="250">
                         <h2 class="mt-3"><?php echo htmlspecialchars($first_name); ?> <?php echo htmlspecialchars($last_name); ?></h2>
                         <p class="mb-2">Email: <?php echo htmlspecialchars($email); ?></p>
                         <p class="mb-2">Cell Number: <?php echo htmlspecialchars($cell_no); ?></p>
@@ -342,8 +343,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                         <div class="d-flex justify-content-center mt-3">
                             <form id="submitEmail" method="GET">
                                 <div class="form-group">
-                                    <textarea class="form-control mb-3" name="recruiterComment" id="recruiterComment" placeholder="Leave a comment" name="recruiterComment" rows="3" style="border: 1px solid #ced4da; padding: .375rem .75rem;"></textarea>
-                                    <div class="row mb-4">
+                                    <textarea class="form-control mb-3" name="recruiterComment" id="recruiterComment" placeholder="Leave a comment" rows="3" style="border: 1px solid #ced4da; padding: .375rem .75rem;"></textarea>
+                                    <div class="row mb-4" id="interviewDetails" style="display: none;">
                                         <label class="col-12">
                                             <u><strong>Interview Details</strong></u>
                                         </label>
@@ -356,11 +357,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                                             <input type="time" id="interview_time" name="interview_time" class="form-control">
                                         </div>
                                     </div>
-                                    <button type="submit" class="btn btn-primary me-5" name="accept">ACCEPT</button>
+                                    <button type="button" class="btn btn-primary me-5" id="acceptButton">ACCEPT</button>
+                                    <button type="submit" class="btn btn-success me-5" id="submitButton" style="display: none;">SUBMIT</button>
                                     <button type="submit" name="decline" class="btn btn-danger">DECLINE</button>
+
                                 </div>
                             </form>
-
                         </div>
                     </div>
                 </div>
@@ -368,8 +370,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         </div>
     </div>
     <script>
-        document.getElementById('submitEmail').addEventListener('submit', function() {
-            document.getElementById('spinner-overlay').style.display = 'flex';
+        document.addEventListener('DOMContentLoaded', function() {
+            const acceptButton = document.getElementById('acceptButton');
+            const submitButton = document.getElementById('submitButton');
+            const declineButton = document.querySelector('button[name="decline"]');
+            const interviewDetails = document.getElementById('interviewDetails');
+            const submitEmailForm = document.getElementById('submitEmail');
+            const interviewDate = document.getElementById('interview_date');
+            const interviewTime = document.getElementById('interview_time');
+
+            acceptButton.addEventListener('click', function() {
+                interviewDetails.style.display = 'flex';
+                acceptButton.style.display = 'none';
+                submitButton.style.display = 'inline-block';
+            });
+
+            submitEmailForm.addEventListener('submit', function(event) {
+                const selectedDate = new Date(interviewDate.value);
+                const today = new Date();
+                const selectedTime = interviewTime.value;
+
+                // Validate that the selected date is in the future
+                if (selectedDate <= today) {
+                    alert('Please select a future date for the interview.');
+                    event.preventDefault();
+                    return;
+                }
+
+                // Validate that the selected time is between 06:00 and 18:00
+                if (selectedTime < '06:00' || selectedTime > '18:00') {
+                    alert('Please select a time between 06:00 and 18:00.');
+                    event.preventDefault();
+                    return;
+                }
+
+                document.getElementById('spinner-overlay').style.display = 'flex';
+            });
         });
     </script>
 </body>

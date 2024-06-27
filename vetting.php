@@ -99,7 +99,8 @@ $rapidApiUrl = "https://social-links-search.p.rapidapi.com/search-social-links?q
 // Set up RapidAPI request headers
 $rapidApiHeaders = [
     "X-RapidAPI-Host: social-links-search.p.rapidapi.com",
-    "X-RapidAPI-Key: f389caef1amsh56eb102cb5c5798p1862bfjsn2987ea5afeee"
+    "X-RapidAPI-Key:330f5d139emsh71c0f13fe96b903p14649djsn0185f3331ac3 "
+    //f389caef1amsh56eb102cb5c5798p1862bfjsn2987ea5afeee
 ];
 
 // Initialize cURL session
