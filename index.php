@@ -42,44 +42,63 @@
         });
 
         function validateForm() {
-            var address = document.forms["registrationForm"]["address"].value;
-            var motivation = document.forms["registrationForm"]["motivation"].value;
-            var identityNumber = document.forms["registrationForm"]["identity_number"].value;
-            var inputs = document.getElementsByTagName("input");
+            var form = document.forms["registrationForm"];
+            var fields = ["first_name", "last_name", "email", "phone", "application_position", "address", "motivation", "identity_number"];
+            var valid = true;
 
             // Reset borders of all input fields
-            for (var i = 0; i < inputs.length; i++) {
-                inputs[i].classList.remove("error-input");
+            for (var i = 0; i < fields.length; i++) {
+                form[fields[i]].classList.remove("error-input");
             }
 
             // Check if all fields are attended
-            for (var i = 0; i < inputs.length; i++) {
-                if (inputs[i].hasAttribute("required") && inputs[i].value === "") {
+            for (var i = 0; i < fields.length; i++) {
+                if (form[fields[i]].value === "") {
                     alert("Please fill in all fields");
-                    inputs[i].classList.add("error-input");
-                    return false;
+                    form[fields[i]].classList.add("error-input");
+                    valid = false;
                 }
             }
 
-            // Check if address is provided
-            if (address === "") {
-                alert("Please provide your address");
-                document.forms["registrationForm"]["address"].classList.add("error-input");
-                return false;
+            // Check if first_name contains only letters and no leading/trailing spaces
+            var firstName = form["first_name"].value.trim();
+            if (!/^[A-Za-z]+$/.test(firstName)) {
+                alert("Please enter a valid first name (only letters allowed)");
+                form["first_name"].classList.add("error-input");
+                valid = false;
             }
 
-            // Check if motivation is provided
-            if (motivation === "") {
-                alert("Please provide your motivation for applying");
-                document.forms["registrationForm"]["motivation"].classList.add("error-input");
-                return false;
+            // Check if last_name contains only letters and no leading/trailing spaces
+            var lastName = form["last_name"].value.trim();
+            if (!/^[A-Za-z]+$/.test(lastName)) {
+                alert("Please enter a valid last name (only letters allowed)");
+                form["last_name"].classList.add("error-input");
+                valid = false;
+            }
+
+            // Check if email is valid
+            var email = form["email"].value;
+            var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test(email)) {
+                alert("Please enter a valid email address");
+                form["email"].classList.add("error-input");
+                valid = false;
+            }
+
+            // Check if phone is valid (digits only)
+            var phone = form["phone"].value;
+            if (isNaN(phone) || phone.length < 10) {
+                alert("Please enter a valid phone number");
+                form["phone"].classList.add("error-input");
+                valid = false;
             }
 
             // Check if identity number is exactly 13 digits
+            var identityNumber = form["identity_number"].value;
             if (identityNumber.length !== 13 || isNaN(identityNumber)) {
                 alert("Please enter a valid 13-digit identity number");
-                document.forms["registrationForm"]["identity_number"].classList.add("error-input");
-                return false;
+                form["identity_number"].classList.add("error-input");
+                valid = false;
             }
 
             // Extract birthdate from identity number (YYMMDD)
@@ -92,11 +111,25 @@
             var lastDaysOfMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
             if (day < 1 || day > lastDaysOfMonth[month - 1]) {
                 alert("Please enter a valid identity number");
-                document.forms["registrationForm"]["identity_number"].classList.add("error-input");
-                return false;
+                form["identity_number"].classList.add("error-input");
+                valid = false;
             }
 
-            return true;
+            // Check if address is provided
+            if (form["address"].value === "") {
+                alert("Please provide your address");
+                form["address"].classList.add("error-input");
+                valid = false;
+            }
+
+            // Check if motivation is provided
+            if (form["motivation"].value === "") {
+                alert("Please provide your motivation for applying");
+                form["motivation"].classList.add("error-input");
+                valid = false;
+            }
+
+            return valid;
         }
 
         $(document).ready(function () {
